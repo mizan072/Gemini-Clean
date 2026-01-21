@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gemini Clean | AI Watermark Remover</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #030712;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-nav {
+            background: rgba(3, 7, 18, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .drop-zone {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23475569' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drop-zone:hover {
+            background-color: rgba(30, 41, 59, 0.5);
+        }
+        .drop-zone.active {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%2338BDF8' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+            background-color: rgba(56, 189, 248, 0.08);
+            transform: scale-[1.01];
+        }
+
+        .checkerboard {
+            background-color: #1e293b;
+            background-image: 
+                linear-gradient(45deg, #334155 25%, transparent 25%), 
+                linear-gradient(-45deg, #334155 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #334155 75%), 
+                linear-gradient(-45deg, transparent 75%, #334155 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0.8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
+            50% { opacity: 1; box-shadow: 0 0 20px rgba(56, 189, 248, 1); }
+            100% { top: 100%; opacity: 0.8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.8); }
+        }
+        .scanner-line {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #38bdf8;
+            animation: scan 1.5s linear infinite;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-500/30">
+    <div id="root" class="flex flex-col min-h-screen"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ICONS (Lucide Style SVGs) ---
+        const Icons = {
+            Upload: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>,
+            Magic: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></svg>,
+            Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+            Zap: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+            Github: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2.7-5-2.7"/></svg>,
+            Heart: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>,
+            Alert: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        };
+
+        // --- Core Logic ---
+        const calculateAlphaMap = (imgData) => {
+            const { width, height, data } = imgData;
+            const alphaMap = new Float32Array(width * height);
+            for (let i = 0; i < alphaMap.length; i++) {
+                const idx = i * 4;
+                const val = Math.max(data[idx], data[idx + 1], data[idx + 2]);
+                alphaMap[i] = val / 255.0;
+            }
+            return alphaMap;
+        };
+
+        const removeWatermark = (ctx, targetImg, alphaMap, isLarge) => {
+            const width = targetImg.width;
+            const height = targetImg.height;
+            
+            ctx.canvas.width = width;
+            ctx.canvas.height = height;
+            ctx.drawImage(targetImg, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+
+            const wmSize = isLarge ? 96 : 48;
+            const margin = isLarge ? 64 : 32;
+
+            const startX = width - wmSize - margin;
+            const startY = height - wmSize - margin;
+
+            if (startX < 0 || startY < 0) return imageData;
+
+            const LOGO_VALUE = 255;
+            const MAX_ALPHA = 0.99;
+            const ALPHA_THRESHOLD = 0.002;
+
+            for (let row = 0; row < wmSize; row++) {
+                for (let col = 0; col < wmSize; col++) {
+                    const globalX = startX + col;
+                    const globalY = startY + row;
+
+                    if (globalX >= width || globalY >= height) continue;
+
+                    const pixelIdx = (globalY * width + globalX) * 4;
+                    const maskIdx = row * wmSize + col;
+                    
+                    let alpha = alphaMap[maskIdx];
+
+                    if (alpha < ALPHA_THRESHOLD) continue;
+                    alpha = Math.min(alpha, MAX_ALPHA);
+
+                    const oneMinusAlpha = 1.0 - alpha;
+
+                    for (let c = 0; c < 3; c++) {
+                        const watermarkedVal = data[pixelIdx + c];
+                        let originalVal = (watermarkedVal - (alpha * LOGO_VALUE)) / oneMinusAlpha;
+                        originalVal = Math.max(0, Math.min(255, Math.round(originalVal)));
+                        data[pixelIdx + c] = originalVal;
+                    }
+                }
+            }
+            return imageData;
+        };
+
+        const FileDrop = ({ onDrop, accept, children, className, disabled, isProcessing }) => {
+            const [isOver, setIsOver] = useState(false);
+            const inputRef = useRef(null);
+
+            const handleDragOver = (e) => {
+                e.preventDefault();
+                if (!disabled) setIsOver(true);
+            };
+
+            const handleDragLeave = () => setIsOver(false);
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                setIsOver(false);
+                if (!disabled && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    onDrop(e.dataTransfer.files[0]);
+                }
+            };
+            
+            const handleClick = () => {
+                if (!disabled) inputRef.current.click();
+            };
+
+            return (
+                <div 
+                    onClick={handleClick}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`drop-zone relative rounded-3xl cursor-pointer transition-all duration-300 overflow-hidden ${isOver ? 'active' : ''} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    <input 
+                        type="file" 
+                        ref={inputRef} 
+                        className="hidden" 
+                        accept={accept} 
+                        onChange={(e) => e.target.files.length > 0 && onDrop(e.target.files[0])}
+                        disabled={disabled}
+                    />
+                    {isProcessing && <div className="scanner-line"></div>}
+                    {children}
+                </div>
+            );
+        };
+
+        const Header = () => (
+            <header className="glass-nav sticky top-0 z-50 w-full">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                                <span className="text-white font-bold text-sm">G</span>
+                            </div>
+                            <span className="font-bold text-white text-lg tracking-tight">Gemini Clean</span>
+                        </div>
+                        <nav className="flex items-center gap-4">
+                            <a href="https://github.com/journey-ad/gemini-watermark-remover" target="_blank" className="text-slate-400 hover:text-white transition-colors p-2 rounded-full hover:bg-white/5">
+                                <Icons.Github />
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+        );
+
+        const Footer = () => (
+            <footer className="border-t border-white/5 bg-slate-900/50 mt-auto">
+                <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div className="text-center md:text-left">
+                            <p className="text-sm text-slate-400">
+                                &copy; {new Date().getFullYear()} Gemini Clean. Open Source.
+                            </p>
+                            <p className="text-xs text-slate-500 mt-1">
+                                Algorithm based on <a href="https://github.com/journey-ad/gemini-watermark-remover" target="_blank" className="text-blue-500 hover:underline">journey-ad/gemini-watermark-remover</a>
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <a href="#" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">Privacy</a>
+                            <a href="#" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">Terms</a>
+                            <div className="flex items-center gap-1.5 text-xs text-slate-500 bg-white/5 px-3 py-1.5 rounded-full">
+                                <span>Made with</span>
+                                <span className="text-red-500"><Icons.Heart /></span>
+                                <span>& code</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        );
+
+        const App = () => {
+            const [mask48, setMask48] = useState(null);
+            const [mask96, setMask96] = useState(null);
+            const [processedImage, setProcessedImage] = useState(null);
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [isLoadingResources, setIsLoadingResources] = useState(true);
+            const [fileName, setFileName] = useState("");
+            const [error, setError] = useState("");
+            const [imgDimensions, setImgDimensions] = useState({ w: 0, h: 0 });
+
+            useEffect(() => {
+                const loadMasks = async () => {
+                    try {
+                        const loadImg = (url, size) => new Promise((resolve, reject) => {
+                            const img = new Image();
+                            img.crossOrigin = "Anonymous";
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = size;
+                                canvas.height = size;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0);
+                                resolve(calculateAlphaMap(ctx.getImageData(0, 0, size, size)));
+                            };
+                            img.onerror = () => reject();
+                            img.src = url;
+                        });
+
+                        const [m48, m96] = await Promise.all([
+                            loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_48.png', 48),
+                            loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_96.png', 96)
+                        ]);
+
+                        setMask48(m48);
+                        setMask96(m96);
+                    } catch (err) {
+                        setError("Network Error: Could not load calibration data.");
+                    } finally {
+                        setIsLoadingResources(false);
+                    }
+                };
+                loadMasks();
+            }, []);
+
+            const processTarget = (file) => {
+                if (!mask48 || !mask96) return;
+                
+                setIsProcessing(true);
+                setFileName(file.name);
+                setError("");
+                setProcessedImage(null);
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Small timeout to allow UI to update to "Processing" state and scanner to show
+                        setTimeout(() => {
+                            try {
+                                const isLarge = (img.width > 1024 && img.height > 1024);
+                                const activeMask = isLarge ? mask96 : mask48;
+                                setImgDimensions({ w: img.width, h: img.height });
+
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                const resultData = removeWatermark(ctx, img, activeMask, isLarge);
+                                
+                                ctx.putImageData(resultData, 0, 0);
+                                setProcessedImage(canvas.toDataURL('image/png'));
+                            } catch (err) {
+                                setError("Failed to process image.");
+                            } finally {
+                                setIsProcessing(false);
+                            }
+                        }, 800); // Artificial delay to show off the scanner animation
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+
+            return (
+                <div className="flex flex-col min-h-screen">
+                    <Header />
+
+                    <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
+                        
+                        {/* Hero Text */}
+                        <div className="text-center mb-8 sm:mb-12 max-w-2xl mx-auto animate-in slide-in-from-bottom-5 fade-in duration-700">
+                            <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 tracking-tight">
+                                Restore your images <br/>
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                                    pixel by pixel.
+                                </span>
+                            </h1>
+                            <p className="text-slate-400 text-sm sm:text-base">
+                                A privacy-focused tool that mathematically removes the Gemini watermark using reverse alpha blending. 100% Client-side.
+                            </p>
+                        </div>
+
+                        {/* Main Card */}
+                        <div className="w-full max-w-5xl glass-panel rounded-3xl p-1 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-500 delay-150">
+                            
+                            {/* Status Bar (Loading Resource) */}
+                            {isLoadingResources && (
+                                <div className="absolute inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
+                                    <div className="w-12 h-12 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+                                    <h3 className="text-lg font-semibold text-white">Initializing Engine</h3>
+                                    <p className="text-sm text-slate-400 mt-2">Loading calibration maps from CDN...</p>
+                                </div>
+                            )}
+
+                            <div className="bg-slate-950/40 rounded-[1.4rem] p-6 sm:p-8 min-h-[500px] flex flex-col relative overflow-hidden">
+                                
+                                {!processedImage ? (
+                                    <div className="flex-1 flex flex-col justify-center">
+                                        <FileDrop 
+                                            accept="image/*" 
+                                            onDrop={processTarget} 
+                                            disabled={isLoadingResources || isProcessing}
+                                            isProcessing={isProcessing}
+                                            className="w-full h-80 sm:h-96 flex flex-col items-center justify-center border-0 bg-slate-800/20 group hover:bg-slate-800/30 transition-all"
+                                        >
+                                            <div className="relative mb-8 z-20 pointer-events-none">
+                                                <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full group-hover:bg-blue-500/30 transition-all duration-500"></div>
+                                                <div className={`relative w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-300 ${isProcessing ? 'scale-110 border-blue-500/50' : 'group-hover:scale-110 group-hover:rotate-3'}`}>
+                                                    {isProcessing ? (
+                                                        <div className="w-10 h-10 border-3 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <div className="text-blue-400 group-hover:text-blue-300 transition-colors">
+                                                            <Icons.Upload />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 text-center z-20 pointer-events-none">
+                                                {isProcessing ? "Processing..." : "Upload Image"}
+                                            </h2>
+                                            <p className="text-slate-400 text-center max-w-sm px-4 leading-relaxed z-20 pointer-events-none">
+                                                {isProcessing 
+                                                    ? "Analyzing alpha channels and restoring pixels..." 
+                                                    : "Drag & drop your Gemini-generated image, or click to browse."
+                                                }
+                                            </p>
+                                            
+                                            {!isProcessing && (
+                                                <div className="mt-8 flex gap-3 text-[10px] uppercase tracking-wider font-semibold text-slate-500 bg-slate-900/50 px-4 py-2 rounded-full border border-slate-700/50 z-20 pointer-events-none">
+                                                    <span>JPG</span>
+                                                    <span className="w-1 h-1 bg-slate-600 rounded-full my-auto"></span>
+                                                    <span>PNG</span>
+                                                    <span className="w-1 h-1 bg-slate-600 rounded-full my-auto"></span>
+                                                    <span>WEBP</span>
+                                                </div>
+                                            )}
+                                        </FileDrop>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-95 duration-500">
+                                        {/* Success Header */}
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center text-green-400 border border-green-500/20 shadow-lg shadow-green-900/20">
+                                                    <Icons.Magic />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-white text-lg">Cleaned Successfully</h3>
+                                                    <p className="text-sm text-slate-400 font-mono">{imgDimensions.w} × {imgDimensions.h}px <span className="mx-2 text-slate-600">|</span> Lossless</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex gap-3">
+                                                <button 
+                                                    onClick={() => setProcessedImage(null)}
+                                                    className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold transition-colors flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-600"
+                                                >
+                                                    <Icons.Refresh />
+                                                    <span>New</span>
+                                                </button>
+                                                <a 
+                                                    href={processedImage} 
+                                                    download={`clean_${fileName}`}
+                                                    className="flex-[2] sm:flex-none px-8 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white text-sm font-bold shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 border border-blue-400/20"
+                                                >
+                                                    <Icons.Download />
+                                                    <span>Download</span>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        {/* Preview Area */}
+                                        <div className="relative flex-1 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 group shadow-inner min-h-[400px]">
+                                            <div className="absolute inset-0 checkerboard opacity-40"></div>
+                                            <div className="relative w-full h-full flex items-center justify-center p-4 overflow-auto custom-scrollbar">
+                                                <img 
+                                                    src={processedImage} 
+                                                    alt="Cleaned" 
+                                                    className="max-w-full max-h-[60vh] object-contain shadow-2xl rounded-sm" 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Features Grid */}
+                        <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 mb-8">
+                            {[
+                                { icon: Icons.Shield, title: "100% Private", desc: "No data leaves your device." },
+                                { icon: Icons.Zap, title: "Instant", desc: "No queues or server lag." },
+                                { icon: Icons.Magic, title: "Pixel Perfect", desc: "Original pixels restored." }
+                            ].map((feature, i) => (
+                                <div key={i} className="group p-5 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors flex items-start gap-4">
+                                    <div className="p-3 rounded-xl bg-slate-800 text-slate-300 group-hover:text-blue-400 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                                        <feature.icon />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-base font-bold text-slate-200 mb-1">{feature.title}</h4>
+                                        <p className="text-sm text-slate-500 leading-relaxed">{feature.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Error Toast */}
+                        {error && (
+                            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-[90%] bg-red-500/10 backdrop-blur-xl border border-red-500/50 text-red-200 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5 z-50">
+                                <div className="text-red-400"><Icons.Alert /></div>
+                                <span className="text-sm font-medium">{error}</span>
+                                <button onClick={() => setError("")} className="ml-auto text-red-400 hover:text-white">✕</button>
+                            </div>
+                        )}
+                    </main>
+
+                    <Footer />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
