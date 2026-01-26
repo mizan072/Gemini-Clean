@@ -102,7 +102,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow pt-24 pb-12 px-4 sm:px-6 w-full max-w-4xl mx-auto">
+    <main class="flex-grow pt-24 pb-8 px-4 sm:px-6 w-full max-w-4xl mx-auto">
         
         <!-- Hero -->
         <div class="text-center mb-8 animate-enter">
@@ -137,7 +137,7 @@
         </div>
 
         <!-- Results -->
-        <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-20">
+        <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-12">
             <!-- Content injected via JS -->
         </div>
 
@@ -150,6 +150,26 @@
             <p class="text-slate-500 text-sm mt-1">Check for typos or try a different keyword.</p>
         </div>
     </main>
+
+    <!-- Footer with Disclaimer -->
+    <footer class="mt-auto border-t border-slate-200 bg-white py-10 relative z-10">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="mb-6 flex justify-center">
+                <div class="h-1 w-12 bg-slate-100 rounded-full"></div>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed max-w-xl mx-auto mb-4 border border-slate-100 bg-slate-50 p-4 rounded-xl">
+                <strong class="text-slate-600 block mb-1">Disclaimer</strong>
+                We do not host any files on our servers. All documents and links provided are indexed from public domains and external sources. We are not responsible for the content of external websites.
+            </p>
+            <div class="flex items-center justify-center gap-4 text-xs font-medium text-slate-300">
+                <span>© 2024 DocuSearch</span>
+                <span class="w-1 h-1 bg-slate-200 rounded-full"></span>
+                <a href="#" class="hover:text-brand-600 transition-colors">Privacy</a>
+                <span class="w-1 h-1 bg-slate-200 rounded-full"></span>
+                <a href="#" class="hover:text-brand-600 transition-colors">Terms</a>
+            </div>
+        </div>
+    </footer>
 
     <!-- Modal / Bottom Sheet -->
     <div id="modal-overlay" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300" onclick="closeModal()">
@@ -307,11 +327,26 @@
             const status = document.getElementById('result-status');
             const clearBtn = document.getElementById('clear-search');
             
-            if(query.length > 0) clearBtn.classList.remove('hidden');
+            const q = query.toLowerCase().trim();
+            
+            // Toggle clear button
+            if(q.length > 0) clearBtn.classList.remove('hidden');
             else clearBtn.classList.add('hidden');
 
-            const q = query.toLowerCase();
-            const results = db.filter(item => item.title.toLowerCase().includes(q));
+            let results;
+
+            // --- CHANGED LOGIC START ---
+            if (q.length === 0) {
+                // If search is empty, show only the last 10 items (reversed)
+                // We create a copy so we don't mutate the original db
+                results = [...db].reverse().slice(0, 10);
+                status.textContent = `Newest 10 of ${db.length} Documents`;
+            } else {
+                // If search is active, search the entire database
+                results = db.filter(item => item.title.toLowerCase().includes(q));
+                status.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} found`;
+            }
+            // --- CHANGED LOGIC END ---
 
             grid.innerHTML = '';
             
@@ -322,7 +357,6 @@
             } else {
                 empty.classList.add('hidden');
                 empty.classList.add('opacity-0');
-                status.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
                 status.style.opacity = '1';
 
                 results.forEach((item, index) => {
