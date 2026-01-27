@@ -3,45 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Secure Resource Hub</title>
+    <title>Resource Hub</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Hind Siliguri (Bengali) & Inter (English) -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        sans: ['"Inter"', '"Hind Siliguri"', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            900: '#0c4a6e',
+                        slate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        primary: {
+                            500: '#2563eb', // Professional Blue
+                            600: '#1d4ed8',
                         }
                     },
                     boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-                        'glow': '0 0 15px rgba(14, 165, 233, 0.3)',
-                    },
-                    animation: {
-                        'enter': 'enter 0.4s ease-out forwards',
-                        'pop-in': 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-                    },
-                    keyframes: {
-                        enter: {
-                            '0%': { opacity: '0', transform: 'scale(0.98)' },
-                            '100%': { opacity: '1', transform: 'scale(1)' },
-                        },
-                        popIn: {
-                            '0%': { opacity: '0', transform: 'scale(0.95) translateY(10px)' },
-                            '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
-                        }
+                        'soft': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+                        'hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
                     }
                 }
             }
@@ -49,19 +44,15 @@
     </script>
     <style>
         body {
-            background-color: #f8fafc;
+            background-color: #f1f5f9; /* Slate-100 */
+            color: #0f172a; /* Slate-900 */
             -webkit-tap-highlight-color: transparent;
         }
-        
-        /* Glassmorphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-        }
 
-        /* Utilities */
+        /* Smooth Text Rendering */
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -69,169 +60,162 @@
         .loader {
             border: 2px solid #e2e8f0;
             border-radius: 50%;
-            border-top: 2px solid #0ea5e9;
-            width: 20px;
-            height: 20px;
+            border-top: 2px solid #2563eb;
+            width: 24px;
+            height: 24px;
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .mobile-sheet-content {
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .tabular-nums { font-variant-numeric: tabular-nums; }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col selection:bg-brand-100 selection:text-brand-900">
+<body class="antialiased min-h-screen flex flex-col">
 
-    <!-- Header -->
-    <header class="fixed top-0 w-full z-40 glass transition-all duration-300" id="main-header">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2.5 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-                <div class="bg-gradient-to-br from-brand-500 to-brand-600 text-white p-2 rounded-xl shadow-lg shadow-brand-500/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+    <!-- Navbar -->
+    <header class="fixed top-0 w-full z-40 bg-white border-b border-slate-200 shadow-sm transition-all duration-300">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="resetApp()">
+                <div class="bg-primary-600 text-white p-1.5 rounded-lg shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                 </div>
-                <span class="font-bold text-lg tracking-tight text-slate-900">Docu<span class="text-brand-600">Search</span></span>
+                <span class="font-bold text-base tracking-tight text-slate-800">Docu<span class="text-primary-600">Search</span></span>
             </div>
             
-            <button onclick="fetchData()" class="p-2 text-slate-400 hover:text-brand-600 hover:bg-brand-50 rounded-full transition-colors active:scale-95 transform" title="Refresh Database">
-                <svg id="refresh-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
+            <button onclick="fetchData()" class="p-2 text-slate-500 hover:text-primary-600 hover:bg-slate-50 rounded-full transition-colors active:scale-95" title="Refresh">
+                <svg id="refresh-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>
             </button>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow pt-24 pb-8 px-4 sm:px-6 w-full max-w-4xl mx-auto">
+    <main class="flex-grow pt-24 pb-12 px-4 w-full max-w-5xl mx-auto">
         
-        <!-- Hero -->
-        <div class="text-center mb-8 animate-enter">
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">Internal Resources</h1>
-            <p class="text-slate-500 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">Securely access verified documents, spreadsheets, and links.</p>
-        </div>
+        <!-- Hero & Search -->
+        <div class="mb-8">
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2 text-center">Document Library</h1>
+            <p class="text-slate-500 text-sm text-center mb-6 max-w-md mx-auto">Search and download internal PDF resources securely.</p>
 
-        <!-- Search -->
-        <div class="sticky top-20 z-30 mb-8 animate-enter" style="animation-delay: 0.1s;">
-            <div class="relative group max-w-2xl mx-auto">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-600 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div class="relative group max-w-xl mx-auto">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
                 <input 
                     type="text" 
                     id="search-input"
-                    class="block w-full pl-12 pr-10 py-4 bg-white border border-slate-200 rounded-2xl shadow-soft text-base placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-100 focus:border-brand-500 transition-all duration-200"
-                    placeholder="Search documents..."
+                    class="block w-full pl-11 pr-10 py-3.5 bg-white border border-slate-200 rounded-xl text-sm sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all shadow-soft"
+                    placeholder="Search by file name..."
                     autocomplete="off"
                 >
-                <div id="loading-spinner" class="hidden absolute inset-y-0 right-0 pr-4 flex items-center">
-                    <div class="loader"></div>
+                <div id="loading-spinner" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center">
+                    <div class="w-4 h-4 border-2 border-slate-200 border-t-primary-600 rounded-full animate-spin"></div>
                 </div>
-                <button id="clear-search" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-4 flex items-center text-slate-300 hover:text-slate-500 cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <button id="clear-search" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
             
-            <div class="text-center mt-3 h-5">
-                <span id="result-status" class="text-xs font-semibold text-slate-400 uppercase tracking-wider opacity-0 transition-opacity"></span>
+            <!-- Status Badge -->
+            <div class="text-center mt-4 h-6 flex justify-center opacity-0 transition-opacity" id="result-status-container">
+                <span id="result-status" class="bg-slate-200 text-slate-600 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                    Loading...
+                </span>
             </div>
         </div>
 
-        <!-- Results -->
-        <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-12">
-            <!-- Content injected via JS -->
+        <!-- Results Grid -->
+        <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Cards injected via JS -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination" class="hidden flex justify-center items-center gap-3 mt-10">
+            <button onclick="changePage(-1)" id="prev-btn" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm font-medium shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                Prev
+            </button>
+            
+            <span id="page-indicator" class="text-slate-500 font-mono text-xs bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200">1 / 1</span>
+            
+            <button onclick="changePage(1)" id="next-btn" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm font-medium shadow-sm">
+                Next
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
         </div>
 
         <!-- Empty State -->
         <div id="empty-state" class="hidden flex flex-col items-center justify-center py-12 text-center opacity-0 transition-opacity duration-500">
-            <div class="bg-slate-100 p-5 rounded-full mb-4">
-                <svg class="h-8 w-8 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <div class="bg-slate-100 p-4 rounded-full mb-3">
+                <svg class="h-6 w-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </div>
-            <h3 class="text-slate-900 font-bold text-lg">No matches found</h3>
-            <p class="text-slate-500 text-sm mt-1">Check for typos or try a different keyword.</p>
+            <h3 class="text-slate-900 font-semibold text-base">No matches found</h3>
+            <p class="text-slate-500 text-sm mt-1">Try a different keyword.</p>
         </div>
     </main>
 
-    <!-- Footer with Disclaimer -->
-    <footer class="mt-auto border-t border-slate-200 bg-white py-10 relative z-10">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <div class="mb-6 flex justify-center">
-                <div class="h-1 w-12 bg-slate-100 rounded-full"></div>
-            </div>
-            <p class="text-xs text-slate-400 leading-relaxed max-w-xl mx-auto mb-4 border border-slate-100 bg-slate-50 p-4 rounded-xl">
-                <strong class="text-slate-600 block mb-1">Disclaimer</strong>
-                We do not host any files on our servers. All documents and links provided are indexed from public domains and external sources. We are not responsible for the content of external websites.
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-200 bg-white py-8 text-center">
+        <div class="max-w-4xl mx-auto px-6">
+            <p class="text-xs text-slate-400 leading-relaxed max-w-xl mx-auto mb-2">
+                Disclaimer: We do not host any files. All content is indexed from public domains.
             </p>
-            <div class="flex items-center justify-center gap-4 text-xs font-medium text-slate-300">
-                <span>© 2024 DocuSearch</span>
-                <span class="w-1 h-1 bg-slate-200 rounded-full"></span>
-                <a href="#" class="hover:text-brand-600 transition-colors">Privacy</a>
-                <span class="w-1 h-1 bg-slate-200 rounded-full"></span>
-                <a href="#" class="hover:text-brand-600 transition-colors">Terms</a>
-            </div>
+            <div class="text-xs text-slate-300">© 2024 DocuSearch</div>
         </div>
     </footer>
 
-    <!-- Modal / Bottom Sheet -->
-    <div id="modal-overlay" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300" onclick="closeModal()">
-        <div class="absolute inset-0 sm:flex sm:items-center sm:justify-center flex items-end justify-center pointer-events-none">
+    <!-- Full Page Modal (White Background for Readability) -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 bg-white hidden opacity-0 transition-opacity duration-300">
+        
+        <!-- Modal Navbar -->
+        <div class="absolute top-0 left-0 w-full h-16 border-b border-slate-100 flex items-center px-4 bg-white z-10 shadow-sm">
+            <button onclick="closeModalWithHistory()" class="flex items-center gap-2 text-slate-600 hover:text-slate-900 hover:bg-slate-50 px-3 py-1.5 rounded-lg transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                <span class="font-medium text-sm">Back</span>
+            </button>
+            <div class="ml-auto">
+                <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">SECURE VIEW</span>
+            </div>
+        </div>
+
+        <!-- Modal Content -->
+        <div id="modal-content" class="h-full w-full flex flex-col items-center justify-center px-6 overflow-y-auto pt-16 pb-10">
             
-            <div id="modal-content" class="mobile-sheet-content bg-white w-full sm:w-[500px] sm:rounded-2xl rounded-t-3xl shadow-2xl pointer-events-auto transform translate-y-full sm:translate-y-10 sm:scale-95 transition-all duration-300 ease-out overflow-hidden max-h-[90vh] flex flex-col">
-                
-                <!-- Handle for Mobile -->
-                <div class="sm:hidden w-full flex justify-center pt-3 pb-1" onclick="closeModal()">
-                    <div class="w-12 h-1.5 bg-slate-200 rounded-full"></div>
+            <div class="max-w-md w-full text-center">
+                <!-- Icon -->
+                <div class="w-20 h-20 rounded-2xl mx-auto flex items-center justify-center shadow-sm mb-6 bg-red-50 text-red-600 border border-red-100">
+                    <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M10 13v-2"/><path d="M10 13v2"/><path d="M14 13v-2"/><path d="M14 13v2"/></svg>
                 </div>
 
-                <!-- Header -->
-                <div class="px-6 pt-5 pb-4 border-b border-slate-50 flex justify-between items-start">
-                    <div class="flex gap-4">
-                        <div id="modal-icon-bg" class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-slate-100 bg-slate-50 text-slate-500">
-                            <!-- Icon -->
-                        </div>
-                        <div>
-                            <div id="modal-tag" class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Resource</div>
-                            <h2 id="modal-title" class="text-lg font-bold text-slate-900 leading-tight pr-4 line-clamp-2">Title</h2>
+                <!-- Title & Meta -->
+                <div class="mb-10">
+                    <!-- Added break-words to ensure long titles don't overflow -->
+                    <h2 id="modal-title" class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug mb-3 break-words whitespace-normal font-['Hind_Siliguri']">File Title</h2>
+                    <p class="text-slate-400 text-xs">Source: <span id="modal-host" class="text-slate-600 font-medium">google.com</span></p>
+                </div>
+
+                <!-- Timer / Action Box -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                    
+                    <!-- 1. Timer State -->
+                    <div id="timer-container" class="flex flex-col items-center gap-4 py-2">
+                        <div class="loader"></div>
+                        <div class="text-center">
+                            <p class="text-slate-900 font-semibold text-sm">Verifying link...</p>
+                            <p class="text-slate-500 text-xs mt-1">Ready in <span id="countdown-value" class="font-mono font-bold text-primary-600">5</span>s</p>
                         </div>
                     </div>
-                    <button class="hidden sm:flex p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="closeModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
-                </div>
 
-                <!-- Body -->
-                <div class="p-6">
-                    <p class="text-slate-600 text-sm leading-relaxed mb-6">
-                        You are requesting access to an external resource hosted on <span id="modal-host" class="font-bold text-slate-800">google.com</span>. Please wait while we verify the link.
-                    </p>
-
-                    <div class="flex flex-col gap-3 min-h-[140px] justify-center">
+                    <!-- 2. Action Buttons -->
+                    <div id="action-buttons" class="hidden flex flex-col gap-3 w-full animate-fade-in">
+                        <a id="modal-link" href="#" target="_blank" class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3.5 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            <span>Download PDF</span>
+                        </a>
                         
-                        <!-- 1. Timer State -->
-                        <div id="timer-container" class="w-full bg-slate-50 border border-slate-200 text-slate-600 font-medium py-5 rounded-xl flex flex-col items-center justify-center gap-3 animate-enter">
-                            <div class="flex items-center gap-2">
-                                <div class="loader"></div>
-                                <span class="text-sm font-semibold">Verifying secure link...</span>
-                            </div>
-                            <div class="text-xs text-slate-400 font-mono bg-white px-2 py-1 rounded border border-slate-100">
-                                Please wait <span id="countdown-value" class="tabular-nums text-brand-600 font-bold">5</span>s
-                            </div>
-                        </div>
-
-                        <!-- 2. Action Buttons (Hidden Initially) -->
-                        <div id="action-buttons" class="hidden flex flex-col gap-3 w-full">
-                            <a id="modal-link" href="#" target="_blank" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-4 rounded-xl shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
-                                <span>Open Resource</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                            </a>
-                            
-                            <!-- Staggered animation delay for copy button -->
-                            <button onclick="copyLink()" id="copy-btn" style="animation-delay: 100ms;" class="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                <span id="copy-text">Copy Link</span>
-                            </button>
-                        </div>
-
+                        <button onclick="copyLink()" id="copy-btn" class="w-full bg-white hover:bg-slate-50 text-slate-700 font-medium py-3 rounded-xl transition-colors flex items-center justify-center gap-2 border border-slate-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span id="copy-text">Copy Link</span>
+                        </button>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -239,24 +223,31 @@
 
     <!-- Logic -->
     <script>
-        // CONFIG
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqtc4MBDDpcaHNTOn01GGcr1Ylo1iNvXh_xyheGEMNirziZQdlFxYtcbJeQRLYVq_1VhnXU2rdojz/pub?output=csv"; 
-        const USE_REAL_DATA = true; // Use real CSV
+        const CONFIG = {
+            CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTGqtc4MBDDpcaHNTOn01GGcr1Ylo1iNvXh_xyheGEMNirziZQdlFxYtcbJeQRLYVq_1VhnXU2rdojz/pub?output=csv", 
+            USE_REAL_DATA: true,
+            ITEMS_PER_PAGE: 10
+        };
 
-        // STATE
         let db = [];
+        let currentList = [];
+        let currentPage = 1;
         let currentModalLink = "";
         let timerInterval = null;
 
-        // INIT
         document.addEventListener('DOMContentLoaded', () => {
             fetchData();
             const input = document.getElementById('search-input');
-            input.addEventListener('input', (e) => filterData(e.target.value));
+            input.addEventListener('input', (e) => handleSearch(e.target.value));
+            
+            // Back button handling
             document.addEventListener('keydown', (e) => {
-                if (e.key === '/' && document.activeElement !== input) {
-                    e.preventDefault();
-                    input.focus();
+                if (e.key === 'Escape') closeModalWithHistory();
+            });
+            window.addEventListener('popstate', (event) => {
+                const overlay = document.getElementById('modal-overlay');
+                if (!overlay.classList.contains('hidden')) {
+                    closeModalUI();
                 }
             });
         });
@@ -267,222 +258,218 @@
             refreshIcon.classList.add('animate-spin');
 
             try {
-                // If using real data
-                if (USE_REAL_DATA) {
-                    const res = await fetch(GOOGLE_SHEET_CSV_URL);
+                if (CONFIG.USE_REAL_DATA) {
+                    const res = await fetch(CONFIG.CSV_URL);
                     const csvText = await res.text();
                     db = processData(parseCSV(csvText));
                 } else {
-                    // Fallback Demo Data
-                    db = processData([
-                        { title: "Demo File 1", link: "https://example.com", type: "pdf" }
-                    ]);
+                    db = processData([{ title: "Demo File", link: "#" }]);
                 }
-                filterData(""); 
+                resetSearch();
             } catch (err) {
-                console.error("Fetch Error:", err);
-                alert("Unable to connect to database. Please check your internet connection.");
+                console.error(err);
+                alert("Failed to load data.");
             } finally {
                 setLoading(false);
                 setTimeout(() => refreshIcon.classList.remove('animate-spin'), 500);
             }
         }
 
+        // FIXED CSV PARSER: Splits by last comma to preserve full titles with spaces/punctuation
         function parseCSV(text) {
             const rows = [];
             const lines = text.trim().split('\n');
+            
             for (let i = 1; i < lines.length; i++) {
-                const line = lines[i];
+                const line = lines[i].trim();
                 if(!line) continue;
-                // Regex for CSV with quoted strings containing commas
-                const rawParts = line.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-                if (rawParts && rawParts.length >= 2) {
-                    let title = rawParts[0].trim().replace(/^"|"$/g, '').replace(/""/g, '"');
-                    let link = rawParts[rawParts.length - 1].trim().replace(/^"|"$/g, '');
-                    if(title && link) rows.push({ title, link });
+                
+                // Strategy: Find the LAST comma. Everything after is the Link.
+                // Everything before (no matter the spaces or quotes) is the Title.
+                const lastCommaIndex = line.lastIndexOf(',');
+                
+                if (lastCommaIndex !== -1) {
+                    let title = line.substring(0, lastCommaIndex).trim();
+                    let link = line.substring(lastCommaIndex + 1).trim();
+                    
+                    // Remove wrapping quotes if they exist (Google sheets adds them if title has commas)
+                    if (title.startsWith('"') && title.endsWith('"')) {
+                        title = title.slice(1, -1).replace(/""/g, '"');
+                    }
+                    
+                    if (title && link) rows.push({ title, link });
                 }
             }
             return rows;
         }
 
         function processData(rawData) {
-            return rawData.map(item => {
-                let type = 'link';
-                const l = item.link.toLowerCase();
-                if (l.includes('spreadsheet') || l.includes('xls')) type = 'sheet';
-                else if (l.includes('document') || l.includes('doc')) type = 'doc';
-                else if (l.includes('presentation') || l.includes('ppt') || l.includes('slide')) type = 'slide';
-                else if (l.includes('pdf')) type = 'pdf';
-                else if (l.includes('drive') || l.includes('folder')) type = 'folder';
-                else if (l.includes('youtube') || l.includes('video') || l.includes('mp4')) type = 'video';
-                else if (l.includes('form')) type = 'form';
-                
-                return { ...item, type: item.type || type };
-            });
+            return rawData.map(item => ({ ...item, type: 'pdf' }));
         }
 
-        function filterData(query) {
-            const grid = document.getElementById('results-grid');
-            const empty = document.getElementById('empty-state');
-            const status = document.getElementById('result-status');
+        function handleSearch(query) {
+            const q = query.toLowerCase().trim();
             const clearBtn = document.getElementById('clear-search');
             
-            const q = query.toLowerCase().trim();
-            
-            // Toggle clear button
-            if(q.length > 0) clearBtn.classList.remove('hidden');
-            else clearBtn.classList.add('hidden');
-
-            let results;
-
-            // --- CHANGED LOGIC START ---
-            if (q.length === 0) {
-                // If search is empty, show only the last 10 items (reversed)
-                // We create a copy so we don't mutate the original db
-                results = [...db].reverse().slice(0, 10);
-                status.textContent = `Newest 10 of ${db.length} Documents`;
+            if(q.length > 0) {
+                clearBtn.classList.remove('hidden');
+                currentList = db.filter(item => item.title.toLowerCase().includes(q));
+                updateStatusText(`${currentList.length} Found`);
             } else {
-                // If search is active, search the entire database
-                results = db.filter(item => item.title.toLowerCase().includes(q));
-                status.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} found`;
+                resetSearch();
             }
-            // --- CHANGED LOGIC END ---
+            currentPage = 1;
+            renderPage();
+        }
+
+        function resetSearch() {
+            document.getElementById('clear-search').classList.add('hidden');
+            currentList = [...db].reverse();
+            updateStatusText(`${db.length} Documents`);
+            currentPage = 1;
+            renderPage();
+        }
+        
+        function updateStatusText(text) {
+            const statusEl = document.getElementById('result-status');
+            const container = document.getElementById('result-status-container');
+            statusEl.textContent = text;
+            container.style.opacity = '1';
+        }
+
+        function renderPage() {
+            const grid = document.getElementById('results-grid');
+            const empty = document.getElementById('empty-state');
+            const paginator = document.getElementById('pagination');
 
             grid.innerHTML = '';
-            
-            if (results.length === 0) {
+
+            if (currentList.length === 0) {
                 empty.classList.remove('hidden');
                 setTimeout(() => empty.classList.remove('opacity-0'), 10);
-                status.style.opacity = '0';
-            } else {
-                empty.classList.add('hidden');
-                empty.classList.add('opacity-0');
-                status.style.opacity = '1';
-
-                results.forEach((item, index) => {
-                    grid.appendChild(createCard(item, index));
-                });
+                paginator.classList.add('hidden');
+                return;
             }
+
+            empty.classList.add('hidden');
+            empty.classList.add('opacity-0');
+
+            const start = (currentPage - 1) * CONFIG.ITEMS_PER_PAGE;
+            const end = start + CONFIG.ITEMS_PER_PAGE;
+            const pageItems = currentList.slice(start, end);
+
+            pageItems.forEach((item, index) => {
+                grid.appendChild(createCard(item, index));
+            });
+
+            const totalPages = Math.ceil(currentList.length / CONFIG.ITEMS_PER_PAGE);
+            if (totalPages > 1) {
+                paginator.classList.remove('hidden');
+                paginator.classList.add('flex');
+                document.getElementById('page-indicator').textContent = `${currentPage} / ${totalPages}`;
+                document.getElementById('prev-btn').disabled = currentPage === 1;
+                document.getElementById('next-btn').disabled = currentPage === totalPages;
+            } else {
+                paginator.classList.add('hidden');
+            }
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            renderPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function createCard(item, index) {
             const el = document.createElement('div');
-            el.className = 'bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md hover:border-brand-200 transition-all duration-200 cursor-pointer flex items-center gap-4 group animate-enter';
-            el.style.animationDelay = `${Math.min(index * 50, 500)}ms`;
+            // 'h-auto' allows the card to grow with the text. 
+            el.className = 'bg-white rounded-xl p-4 shadow-soft hover:shadow-hover border border-slate-100 transition-all duration-200 cursor-pointer flex items-start gap-3 h-auto group';
             el.onclick = () => openModal(item);
 
-            const iconData = getIconStyle(item.type);
-
             el.innerHTML = `
-                <div class="w-12 h-12 rounded-xl ${iconData.bg} ${iconData.text} flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 duration-200 border border-black/5">
-                    ${iconData.svg}
+                <div class="w-10 h-10 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0 mt-1 border border-red-100">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
                 </div>
                 <div class="flex-grow min-w-0">
-                    <h3 class="font-bold text-slate-800 text-sm sm:text-base truncate group-hover:text-brand-600 transition-colors">${item.title}</h3>
-                    <p class="text-xs text-slate-400 truncate mt-0.5 capitalize flex items-center gap-1">
-                        ${item.type} <span class="w-1 h-1 rounded-full bg-slate-300"></span> External
-                    </p>
-                </div>
-                <div class="text-slate-300 group-hover:text-brand-500 group-hover:translate-x-1 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    <!-- Text Wrapping Logic: whitespace-normal break-words -->
+                    <h3 class="font-medium text-slate-800 text-sm leading-relaxed break-words whitespace-normal font-['Hind_Siliguri'] group-hover:text-primary-600 transition-colors">${item.title}</h3>
+                    <p class="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-semibold">PDF Document</p>
                 </div>
             `;
             return el;
         }
 
-        // ==========================================
-        // MODAL & TIMER LOGIC
-        // ==========================================
+        // --- MODAL ---
 
         function openModal(item) {
+            history.pushState({ modalOpen: true }, "", "#view");
             const overlay = document.getElementById('modal-overlay');
-            const content = document.getElementById('modal-content');
             
-            // Populate
             document.getElementById('modal-title').textContent = item.title;
             document.getElementById('modal-link').href = item.link;
-            document.getElementById('modal-tag').textContent = item.type;
             try {
                 document.getElementById('modal-host').textContent = new URL(item.link).hostname;
-            } catch(e) {
-                document.getElementById('modal-host').textContent = "External Source";
-            }
+            } catch(e) { document.getElementById('modal-host').textContent = "External Source"; }
             currentModalLink = item.link;
 
-            // Icon
-            const iconData = getIconStyle(item.type);
-            const iconContainer = document.getElementById('modal-icon-bg');
-            iconContainer.className = `w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm border border-slate-100 ${iconData.bg} ${iconData.text}`;
-            iconContainer.innerHTML = iconData.svg;
-
-            // --- RESET TIMER UI ---
+            // Reset Timer
             if(timerInterval) clearInterval(timerInterval);
-            
             const timerContainer = document.getElementById('timer-container');
             const actionButtons = document.getElementById('action-buttons');
-            const openBtn = document.getElementById('modal-link');
-            const copyBtn = document.getElementById('copy-btn');
             const countdownEl = document.getElementById('countdown-value');
 
-            // Initial State: Show Timer, Hide ALL Buttons
             timerContainer.classList.remove('hidden');
             actionButtons.classList.add('hidden');
-            openBtn.classList.remove('animate-pop-in');
-            copyBtn.classList.remove('animate-pop-in');
             
             let secondsLeft = 5;
             countdownEl.textContent = secondsLeft;
 
-            // --- START TIMER ---
             timerInterval = setInterval(() => {
                 secondsLeft--;
                 countdownEl.textContent = secondsLeft;
-
                 if (secondsLeft <= 0) {
                     clearInterval(timerInterval);
-                    
-                    // Transition State: Hide Timer, Show Buttons Container
                     timerContainer.classList.add('hidden');
                     actionButtons.classList.remove('hidden');
-                    
-                    // Trigger animations
-                    openBtn.classList.add('animate-pop-in');
-                    copyBtn.classList.add('animate-pop-in');
                 }
             }, 1000);
 
-            // Show Modal
             overlay.classList.remove('hidden');
-            void overlay.offsetWidth; // Force Reflow
+            void overlay.offsetWidth; 
             overlay.classList.remove('opacity-0');
-            content.classList.remove('translate-y-full', 'sm:translate-y-10', 'sm:scale-95');
+            document.body.style.overflow = 'hidden';
         }
 
-        function closeModal() {
+        function closeModalWithHistory() {
+            if (history.state && history.state.modalOpen) {
+                history.back();
+            } else {
+                closeModalUI();
+            }
+        }
+
+        function closeModalUI() {
             if(timerInterval) clearInterval(timerInterval);
             const overlay = document.getElementById('modal-overlay');
-            const content = document.getElementById('modal-content');
-            
             overlay.classList.add('opacity-0');
-            content.classList.add('translate-y-full', 'sm:translate-y-10', 'sm:scale-95');
-
-            setTimeout(() => overlay.classList.add('hidden'), 350);
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
         }
 
         function copyLink() {
             if(!currentModalLink) return;
             navigator.clipboard.writeText(currentModalLink);
-            
             const btn = document.getElementById('copy-btn');
             const txt = document.getElementById('copy-text');
             const originalText = txt.textContent;
             
-            txt.textContent = "Copied to clipboard!";
-            btn.classList.add('bg-green-50', 'text-green-700', 'border-green-200');
-            
+            txt.textContent = "Copied!";
+            btn.classList.add('bg-slate-100', 'text-green-600');
             setTimeout(() => {
                 txt.textContent = originalText;
-                btn.classList.remove('bg-green-50', 'text-green-700', 'border-green-200');
+                btn.classList.remove('bg-slate-100', 'text-green-600');
             }, 2000);
         }
 
@@ -490,7 +477,7 @@
             const input = document.getElementById('search-input');
             input.value = '';
             input.focus();
-            filterData('');
+            handleSearch('');
         }
 
         function setLoading(bool) {
@@ -498,14 +485,13 @@
             bool ? spinner.classList.remove('hidden') : spinner.classList.add('hidden');
         }
 
-        function getIconStyle(type) {
-            switch(type) {
-                case 'sheet': return { bg: 'bg-emerald-50', text: 'text-emerald-600', svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>' };
-                case 'pdf': return { bg: 'bg-rose-50', text: 'text-rose-600', svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M10 13v-2"/><path d="M10 13v2"/><path d="M14 13v-2"/><path d="M14 13v2"/></svg>' };
-                case 'video': return { bg: 'bg-violet-50', text: 'text-violet-600', svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>' };
-                default: return { bg: 'bg-blue-50', text: 'text-blue-600', svg: '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>' };
-            }
+        function resetApp() {
+            document.getElementById('search-input').value = '';
+            resetSearch();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
     </script>
 </body>
 </html>
+
+
