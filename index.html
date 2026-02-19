@@ -2,179 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>GIMG Cleaner · Professional Image Restoration</title>
-    <!-- Preconnect to external origins for performance -->
-    <link rel="preconnect" href="https://unpkg.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIMG Cleaner v4.0 | Ultimate Suite</title>
     
-    <!-- Core dependencies (React, ReactDOM, Tailwind, Babel) – kept but note: Babel standalone is heavy; in production a build step is recommended -->
+    <!-- Dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+                    colors: { cyber: { 500: '#0ea5e9', 600: '#0284c7', bg: '#020617', panel: '#0f172a' } }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* Custom properties & base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background-color: #0b0f19;
-            color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08), transparent 25%);
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        /* Glassmorphism panels */
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-        .glass-nav {
-            background: rgba(11, 15, 25, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        /* Dropzone with dashed border (via SVG) */
-        .drop-zone {
-            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23334155' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .drop-zone:hover {
-            background-color: rgba(30, 41, 59, 0.3);
-        }
-        .drop-zone.active {
-            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%236366F1' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-            background-color: rgba(99, 102, 241, 0.05);
-        }
-        /* Focus styles for interactive dropzone */
-        .drop-zone:focus-visible {
-            outline: 2px solid #6366f1;
-            outline-offset: 2px;
-        }
-        /* Checkerboard background for preview */
+        body { background: #020617; color: #fff; overscroll-behavior: none; }
+        html, body, #root { height: 100dvh; overflow: hidden; }
+        
         .checkerboard {
-            background-color: #111827;
             background-image: 
-                linear-gradient(45deg, #1f2937 25%, transparent 25%), 
-                linear-gradient(-45deg, #1f2937 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #1f2937 75%), 
-                linear-gradient(-45deg, transparent 75%, #1f2937 75%);
+                linear-gradient(45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1e293b 75%), 
+                linear-gradient(-45deg, transparent 75%, #1e293b 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
-        /* Scanner line animation */
-        @keyframes scan {
-            0% { top: 0%; opacity: 0; }
-            15% { opacity: 1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); }
-            85% { opacity: 1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); }
-            100% { top: 100%; opacity: 0; }
+
+        /* Selection Box for Manual Tool */
+        .selection-box {
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+            border: 1px solid #0ea5e9;
+            touch-action: none;
         }
-        .scanner-line {
+        .handle {
+            width: 24px; height: 24px;
+            background: #0ea5e9;
+            border: 2px solid white;
+            border-radius: 50%;
             position: absolute;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #818cf8;
-            animation: scan 1.8s ease-in-out infinite;
-            z-index: 10;
-        }
-        /* Custom animations for entrance effects (replaces missing Tailwind plugin) */
-        @keyframes fadeIn {
-            from { opacity: 0; } to { opacity: 1; }
-        }
-        @keyframes slideInFromBottom {
-            from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; }
-        }
-        @keyframes zoomIn {
-            from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.7s ease-out forwards;
-        }
-        .animate-slide-in-bottom {
-            animation: slideInFromBottom 0.7s ease-out forwards;
-        }
-        .animate-zoom-in {
-            animation: zoomIn 0.5s ease-out forwards;
-        }
-        .delay-150 { animation-delay: 150ms; }
-        /* Respect reduced motion preferences */
-        @media (prefers-reduced-motion: reduce) {
-            .scanner-line, .animate-fade-in, .animate-slide-in-bottom, .animate-zoom-in {
-                animation: none !important;
-            }
-            .drop-zone, .glass-panel, button {
-                transition: none !important;
-            }
+            bottom: -12px; right: -12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 50;
         }
     </style>
 </head>
-<body class="antialiased selection:bg-indigo-500/30">
-    <div id="root" class="flex flex-col min-h-screen"></div>
+<body>
+    <div id="root"></div>
 
     <script type="text/babel">
-        // ==================== IMPROVEMENTS SUMMARY ====================
-        // 1. Accessibility: keyboard navigation for dropzone, ARIA labels, focus rings
-        // 2. Performance: replaced dataURL with Blob URLs to reduce memory, added cleanup
-        // 3. Error handling: FileReader and image loading errors now handled
-        // 4. User experience: removed artificial 1.2s delay; processing feels instant but scanner still shows
-        // 5. Added minimum display time for scanner (500ms) to ensure animation is noticeable
-        // 6. Added proper animation keyframes (fade, slide, zoom) without external plugin
-        // 7. Added prefers-reduced-motion support
-        // 8. Improved code structure: useCallback, useRef for blob URL cleanup, constants
-        // 9. Fixed potential memory leak by revoking previous blob URLs
-        // 10. Added file size warning for very large images (>50MB)
-        // 11. Added more descriptive alt text and ARIA labels
-        // 12. Improved semantics: button roles, tabIndex, onKeyDown
-        // 13. Added loading state for mask initialization with better messaging
-        // 14. Added image load error handling inside processTarget
-        // 15. Minor optimizations: memoized icons, extracted constants
-        // ==============================================================
-
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // --- Constants ---
-        const MASKS = {
-            SMALL: { url: 'https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_48.png', size: 48 },
-            LARGE: { url: 'https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_96.png', size: 96 }
-        };
-        const PROCESSING_MIN_DISPLAY_MS = 500; // Ensure scanner animation is visible
-        const MAX_IMAGE_SIZE_MB = 50;
-        const LOGO_VALUE = 255;
-        const MAX_ALPHA = 0.99;
-        const ALPHA_THRESHOLD = 0.002;
-
-        // --- Icons (as memoized components for performance) ---
+        // --- ICONS ---
         const Icons = {
-            Upload: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>),
-            Download: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>),
-            Refresh: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>),
-            Sparkles: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></svg>),
-            Shield: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>),
-            Zap: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>),
-            Layers: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>),
-            Alert: React.memo(() => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>)
+            Auto: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
+            Manual: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
+            Save: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
+            Upload: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            Undo: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>,
+            Erase: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
         };
 
-        // --- Core Logic (unchanged but commented) ---
+        // --- MATH ENGINE (AUTO REMOVER) ---
         const calculateAlphaMap = (imgData) => {
             const { width, height, data } = imgData;
             const alphaMap = new Float32Array(width * height);
@@ -186,449 +83,323 @@
             return alphaMap;
         };
 
-        const removeWatermark = (ctx, targetImg, alphaMap, isLarge) => {
-            const width = targetImg.width;
-            const height = targetImg.height;
+        const processAuto = (ctx, img, alphaMap, isLarge, strength, offX, offY) => {
+            const w = img.width, h = img.height;
+            ctx.canvas.width = w; ctx.canvas.height = h;
+            ctx.drawImage(img, 0, 0);
             
-            ctx.canvas.width = width;
-            ctx.canvas.height = height;
-            ctx.drawImage(targetImg, 0, 0);
-
-            const imageData = ctx.getImageData(0, 0, width, height);
+            const imageData = ctx.getImageData(0, 0, w, h);
             const data = imageData.data;
-
-            const wmSize = isLarge ? 96 : 48;
+            const size = isLarge ? 96 : 48;
             const margin = isLarge ? 64 : 32;
+            const startX = (w - size - margin) + offX;
+            const startY = (h - size - margin) + offY;
 
-            const startX = width - wmSize - margin;
-            const startY = height - wmSize - margin;
-
-            if (startX < 0 || startY < 0) return imageData;
-
-            for (let row = 0; row < wmSize; row++) {
-                for (let col = 0; col < wmSize; col++) {
-                    const globalX = startX + col;
-                    const globalY = startY + row;
-
-                    if (globalX >= width || globalY >= height) continue;
-
-                    const pixelIdx = (globalY * width + globalX) * 4;
-                    const maskIdx = row * wmSize + col;
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    const gx = startX + c, gy = startY + r;
+                    if (gx >= w || gy >= h || gx < 0 || gy < 0) continue;
                     
-                    let alpha = alphaMap[maskIdx];
+                    const pIdx = (gy * w + gx) * 4;
+                    const mIdx = r * size + c;
+                    let alpha = alphaMap[mIdx] * strength;
+                    if (alpha < 0.005) continue;
+                    alpha = Math.min(alpha, 0.99);
 
-                    if (alpha < ALPHA_THRESHOLD) continue;
-                    alpha = Math.min(alpha, MAX_ALPHA);
-
-                    const oneMinusAlpha = 1.0 - alpha;
-
-                    for (let c = 0; c < 3; c++) {
-                        const watermarkedVal = data[pixelIdx + c];
-                        let originalVal = (watermarkedVal - (alpha * LOGO_VALUE)) / oneMinusAlpha;
-                        originalVal = Math.max(0, Math.min(255, Math.round(originalVal)));
-                        data[pixelIdx + c] = originalVal;
+                    for (let k = 0; k < 3; k++) {
+                        let val = (data[pIdx+k] - (alpha * 255)) / (1 - alpha);
+                        data[pIdx+k] = Math.max(0, Math.min(255, Math.round(val)));
                     }
                 }
             }
-            return imageData;
+            ctx.putImageData(imageData, 0, 0);
         };
 
-        // --- Accessible FileDrop Component ---
-        const FileDrop = ({ onDrop, accept, children, className, disabled, isProcessing }) => {
-            const [isOver, setIsOver] = useState(false);
-            const inputRef = useRef(null);
-
-            const handleDragOver = (e) => {
-                e.preventDefault();
-                if (!disabled) setIsOver(true);
-            };
-
-            const handleDragLeave = () => setIsOver(false);
-
-            const handleDrop = (e) => {
-                e.preventDefault();
-                setIsOver(false);
-                if (!disabled && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                    onDrop(e.dataTransfer.files[0]);
-                }
-            };
+        // --- MANUAL ERASER LOGIC ---
+        const processManual = (canvas, rectPercent, mode) => {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
             
-            const handleClick = () => {
-                if (!disabled) inputRef.current.click();
-            };
+            const rx = (rectPercent.x/100)*w; 
+            const ry = (rectPercent.y/100)*h;
+            const rw = (rectPercent.w/100)*w; 
+            const rh = (rectPercent.h/100)*h;
 
-            const handleKeyDown = (e) => {
-                if (disabled) return;
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    inputRef.current.click();
+            if (mode === 'cloneLeft') {
+                // Take a sliver from left and repeat it
+                const sliceW = 2;
+                const srcX = Math.max(0, rx - sliceW);
+                for(let i=0; i<rw; i+=sliceW) {
+                    ctx.drawImage(canvas, srcX, ry, sliceW, rh, rx+i, ry, sliceW, rh);
                 }
-            };
-
-            return (
-                <div 
-                    onClick={handleClick}
-                    onKeyDown={handleKeyDown}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    role="button"
-                    tabIndex={disabled ? -1 : 0}
-                    aria-disabled={disabled}
-                    aria-label="Upload image area, click or drag and drop"
-                    className={`drop-zone relative rounded-3xl cursor-pointer transition-all duration-300 overflow-hidden ${isOver ? 'active' : ''} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                    <input 
-                        type="file" 
-                        ref={inputRef} 
-                        className="hidden" 
-                        accept={accept} 
-                        onChange={(e) => e.target.files.length > 0 && onDrop(e.target.files[0])}
-                        disabled={disabled}
-                        tabIndex={-1}
-                        aria-hidden="true"
-                    />
-                    {isProcessing && <div className="scanner-line" aria-hidden="true"></div>}
-                    {children}
-                </div>
-            );
+            } else if (mode === 'blur') {
+                // Box blur simulation
+                const temp = document.createElement('canvas');
+                temp.width = rw; temp.height = rh;
+                const tCtx = temp.getContext('2d');
+                tCtx.filter = 'blur(8px)';
+                tCtx.drawImage(canvas, rx, ry, rw, rh, 0, 0, rw, rh);
+                ctx.drawImage(temp, rx, ry);
+            }
         };
 
-        // --- Header and Footer (unchanted, but added aria-current) ---
-        const Header = () => (
-            <header className="glass-nav sticky top-0 z-50 w-full">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400">
-                                <Icons.Layers />
-                            </div>
-                            <span className="font-bold text-white text-lg tracking-tight">GIMG Cleaner</span>
-                        </div>
-                        <nav className="flex items-center gap-3">
-                            <span className="text-[10px] font-bold tracking-widest bg-slate-800 text-slate-400 px-2 py-1 rounded uppercase">Pro</span>
-                        </nav>
-                    </div>
-                </div>
-            </header>
-        );
-
-        const Footer = () => (
-            <footer className="border-t border-white/5 bg-slate-900/50 mt-auto">
-                <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div className="text-center md:text-left">
-                            <p className="text-sm text-slate-400">
-                                &copy; {new Date().getFullYear()} GIMG Technologies. All rights reserved.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <a href="#" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">Privacy Policy</a>
-                            <a href="#" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">Terms of Service</a>
-                            <span className="text-xs text-slate-600">v2.5.0</span>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        );
-
-        // --- Main App ---
+        // --- APP COMPONENT ---
         const App = () => {
-            const [mask48, setMask48] = useState(null);
-            const [mask96, setMask96] = useState(null);
-            const [processedImageBlob, setProcessedImageBlob] = useState(null); // store blob URL
-            const [isProcessing, setIsProcessing] = useState(false);
-            const [isLoadingResources, setIsLoadingResources] = useState(true);
-            const [fileName, setFileName] = useState("");
-            const [error, setError] = useState("");
-            const [imgDimensions, setImgDimensions] = useState({ w: 0, h: 0 });
+            const [masks, setMasks] = useState({ small: null, large: null });
+            const [file, setFile] = useState(null);
+            const [baseImg, setBaseImg] = useState(null); // The original uploaded image
+            const [currentImg, setCurrentImg] = useState(null); // The current state (after edits)
+            const [history, setHistory] = useState([]); // For Undo
+            
+            const [mode, setMode] = useState('auto'); // 'auto', 'manual'
+            
+            // Auto Settings
+            const [autoStrength, setAutoStrength] = useState(1.0);
+            const [autoOff, setAutoOff] = useState({ x: 0, y: 0 });
+            
+            // Manual Settings
+            const [manualSel, setManualSel] = useState({ x: 40, y: 80, w: 20, h: 10 });
+            const [manualTool, setManualTool] = useState('cloneLeft');
+            const canvasRef = useRef(null);
+            const dragRef = useRef(null);
 
-            const processedBlobUrlRef = useRef(null); // to revoke previous blob URL
-
-            // Clean up blob URL on unmount or when a new one is created
+            // Load Resources
             useEffect(() => {
-                return () => {
-                    if (processedBlobUrlRef.current) {
-                        URL.revokeObjectURL(processedBlobUrlRef.current);
-                    }
-                };
+                const load = (url, s) => new Promise(r => {
+                    const i = new Image(); i.crossOrigin="Anonymous";
+                    i.onload = () => {
+                        const c = document.createElement('canvas'); c.width=s; c.height=s;
+                        c.getContext('2d').drawImage(i,0,0);
+                        r(calculateAlphaMap(c.getContext('2d').getImageData(0,0,s,s)));
+                    };
+                    i.src = url;
+                });
+                Promise.all([
+                    load('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_48.png', 48),
+                    load('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_96.png', 96)
+                ]).then(([s, l]) => setMasks({ small: s, large: l }));
             }, []);
 
-            // Load mask images
-            useEffect(() => {
-                const loadMasks = async () => {
-                    try {
-                        const loadImg = (url, size) => new Promise((resolve, reject) => {
-                            const img = new Image();
-                            img.crossOrigin = "Anonymous";
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = size;
-                                canvas.height = size;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0);
-                                resolve(calculateAlphaMap(ctx.getImageData(0, 0, size, size)));
-                            };
-                            img.onerror = () => reject(new Error(`Failed to load mask: ${url}`));
-                            img.src = url;
-                        });
-
-                        const [m48, m96] = await Promise.all([
-                            loadImg(MASKS.SMALL.url, MASKS.SMALL.size),
-                            loadImg(MASKS.LARGE.url, MASKS.LARGE.size)
-                        ]);
-
-                        setMask48(m48);
-                        setMask96(m96);
-                    } catch (err) {
-                        setError("System initialization failed. Please refresh.");
-                        console.error(err);
-                    } finally {
-                        setIsLoadingResources(false);
-                    }
-                };
-                loadMasks();
-            }, []);
-
-            // Process the uploaded image
-            const processTarget = useCallback((file) => {
-                if (!mask48 || !mask96) {
-                    setError("System not ready. Please wait.");
-                    return;
-                }
-
-                // Basic file validation
-                if (!file.type.startsWith('image/')) {
-                    setError("Please select an image file.");
-                    return;
-                }
-                if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-                    setError(`File size exceeds ${MAX_IMAGE_SIZE_MB}MB. Please choose a smaller image.`);
-                    return;
-                }
-
-                // Revoke previous blob URL to free memory
-                if (processedBlobUrlRef.current) {
-                    URL.revokeObjectURL(processedBlobUrlRef.current);
-                    processedBlobUrlRef.current = null;
-                }
-                setProcessedImageBlob(null);
-                
-                setIsProcessing(true);
-                setFileName(file.name);
-                setError("");
-                
+            // Handle Image Upload
+            const handleUpload = (f) => {
+                if(!f) return;
                 const reader = new FileReader();
-                const startTime = Date.now();
-
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        try {
-                            const isLarge = (img.width > 1024 && img.height > 1024);
-                            const activeMask = isLarge ? mask96 : mask48;
-                            setImgDimensions({ w: img.width, h: img.height });
-
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            const resultData = removeWatermark(ctx, img, activeMask, isLarge);
-                            
-                            ctx.putImageData(resultData, 0, 0);
-
-                            // Convert canvas to Blob for better memory efficiency
-                            canvas.toBlob((blob) => {
-                                if (!blob) {
-                                    setError("Failed to generate output image.");
-                                    setIsProcessing(false);
-                                    return;
-                                }
-                                const url = URL.createObjectURL(blob);
-                                processedBlobUrlRef.current = url;
-                                setProcessedImageBlob(url);
-
-                                // Ensure scanner animation shows for at least min display time
-                                const elapsed = Date.now() - startTime;
-                                const remaining = PROCESSING_MIN_DISPLAY_MS - elapsed;
-                                if (remaining > 0) {
-                                    setTimeout(() => setIsProcessing(false), remaining);
-                                } else {
-                                    setIsProcessing(false);
-                                }
-                            }, 'image/png');
-                        } catch (err) {
-                            setError("Image processing failed: " + err.message);
-                            setIsProcessing(false);
-                        }
-                    };
-                    img.onerror = () => {
-                        setError("Failed to load image. It may be corrupted.");
-                        setIsProcessing(false);
+                        setFile(f);
+                        setBaseImg(img);
+                        setCurrentImg(img); // Start with clean slate
+                        setHistory([]); // Reset undo
+                        // Auto-run cleaner first? No, let user choose.
                     };
                     img.src = e.target.result;
                 };
+                reader.readAsDataURL(f);
+            };
 
-                reader.onerror = () => {
-                    setError("Failed to read file.");
-                    setIsProcessing(false);
+            // Run Auto Cleaner
+            const runAuto = () => {
+                if (!currentImg || !masks.small) return;
+                const cvs = document.createElement('canvas');
+                const ctx = cvs.getContext('2d');
+                const isLarge = currentImg.width > 1024 && currentImg.height > 1024;
+                
+                processAuto(ctx, currentImg, isLarge ? masks.large : masks.small, isLarge, autoStrength, autoOff.x, autoOff.y);
+                
+                const newImg = new Image();
+                newImg.onload = () => {
+                    addToHistory();
+                    setCurrentImg(newImg);
                 };
+                newImg.src = cvs.toDataURL();
+            };
 
-                reader.readAsDataURL(file);
-            }, [mask48, mask96]);
+            // Run Manual Eraser
+            const runManual = () => {
+                const cvs = canvasRef.current;
+                if(!cvs) return;
+                
+                // Process directly on canvas content
+                processManual(cvs, manualSel, manualTool);
+                
+                const newImg = new Image();
+                newImg.onload = () => {
+                    addToHistory();
+                    setCurrentImg(newImg);
+                };
+                newImg.src = cvs.toDataURL();
+            };
 
-            const handleReset = useCallback(() => {
-                if (processedBlobUrlRef.current) {
-                    URL.revokeObjectURL(processedBlobUrlRef.current);
-                    processedBlobUrlRef.current = null;
+            const addToHistory = () => {
+                if (currentImg) setHistory(prev => [...prev.slice(-4), currentImg]);
+            };
+
+            const undo = () => {
+                if (history.length === 0) return;
+                const prev = history[history.length - 1];
+                setCurrentImg(prev);
+                setHistory(h => h.slice(0, -1));
+            };
+
+            // Manual Selection Interaction
+            const updateSel = (cx, cy) => {
+                if (!dragRef.current || !canvasRef.current) return;
+                const r = canvasRef.current.getBoundingClientRect();
+                const px = ((cx - r.left)/r.width)*100;
+                const py = ((cy - r.top)/r.height)*100;
+                
+                setManualSel(prev => {
+                    if (dragRef.current === 'move') return { ...prev, x: px - prev.w/2, y: py - prev.h/2 };
+                    if (dragRef.current === 'size') return { ...prev, w: Math.max(1, px - prev.x), h: Math.max(1, py - prev.y) };
+                    return prev;
+                });
+            };
+
+            // Canvas Render (for Manual Mode)
+            useEffect(() => {
+                if (mode === 'manual' && currentImg && canvasRef.current) {
+                    const cvs = canvasRef.current;
+                    const ctx = cvs.getContext('2d');
+                    cvs.width = currentImg.width;
+                    cvs.height = currentImg.height;
+                    ctx.drawImage(currentImg, 0, 0);
                 }
-                setProcessedImageBlob(null);
-                setFileName("");
-                setImgDimensions({ w: 0, h: 0 });
-            }, []);
+            }, [mode, currentImg]);
 
+            // --- RENDER ---
             return (
-                <div className="flex flex-col min-h-screen">
-                    <Header />
-
-                    <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
-                        
-                        {/* Hero Text with custom animations */}
-                        <div className="text-center mb-8 sm:mb-12 max-w-2xl mx-auto animate-slide-in-bottom">
-                            <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 tracking-tight">
-                                Professional Image<br/>
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
-                                    Restoration & Cleanup
-                                </span>
-                            </h1>
-                            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-                                Advanced reverse-alpha composition engine. Restore original pixel data securely in your browser.
-                            </p>
+                <div className="flex flex-col h-full bg-cyber-bg text-slate-200">
+                    
+                    {/* Header */}
+                    <header className="h-14 bg-cyber-panel border-b border-slate-800 flex items-center justify-between px-4 shrink-0 z-50">
+                        <div className="flex items-center gap-2 font-bold text-white">
+                            <div className="w-6 h-6 bg-cyber-600 rounded flex items-center justify-center text-xs">G</div>
+                            <span>Cleaner <span className="text-cyber-500">v4.0</span></span>
                         </div>
+                        {currentImg && (
+                            <div className="flex bg-slate-800 rounded-lg p-1 gap-1">
+                                <button onClick={()=>setMode('auto')} className={`px-3 py-1 text-xs rounded transition-colors ${mode==='auto' ? 'bg-cyber-600 text-white' : 'text-slate-400'}`}>Auto Clean</button>
+                                <button onClick={()=>setMode('manual')} className={`px-3 py-1 text-xs rounded transition-colors ${mode==='manual' ? 'bg-cyber-600 text-white' : 'text-slate-400'}`}>Manual Tools</button>
+                            </div>
+                        )}
+                        {history.length > 0 && (
+                            <button onClick={undo} className="text-slate-400 hover:text-white"><Icons.Undo/></button>
+                        )}
+                    </header>
 
-                        {/* Main Card */}
-                        <div className="w-full max-w-5xl glass-panel rounded-3xl p-1 shadow-2xl overflow-hidden relative animate-zoom-in delay-150">
-                            
-                            {/* Initialization Overlay */}
-                            {isLoadingResources && (
-                                <div className="absolute inset-0 z-50 bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
-                                    <div className="w-8 h-8 border-2 border-slate-700 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-                                    <h3 className="text-sm font-semibold text-white tracking-wide uppercase">Loading AI Models</h3>
-                                    <p className="text-xs text-slate-400 mt-2">Preparing restoration engine...</p>
+                    {/* Main Area */}
+                    <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+                        
+                        {/* LEFT: Canvas */}
+                        <div className="flex-1 bg-black relative flex flex-col order-1 md:order-2 overflow-hidden">
+                            {!currentImg ? (
+                                <div className="absolute inset-0 flex items-center justify-center p-6 checkerboard">
+                                    <label className="flex flex-col items-center justify-center w-full max-w-sm aspect-square border-2 border-dashed border-slate-700 rounded-2xl bg-slate-900/80 cursor-pointer hover:border-cyber-500 transition-colors">
+                                        <input type="file" className="hidden" accept="image/*" onChange={(e)=>handleUpload(e.target.files[0])} />
+                                        <div className="text-cyber-500 mb-4 scale-150"><Icons.Upload/></div>
+                                        <span className="font-bold">Upload Image</span>
+                                    </label>
                                 </div>
-                            )}
-
-                            <div className="bg-slate-950/40 rounded-[1.4rem] p-6 sm:p-8 min-h-[500px] flex flex-col relative overflow-hidden">
-                                
-                                {!processedImageBlob ? (
-                                    <div className="flex-1 flex flex-col justify-center">
-                                        <FileDrop 
-                                            accept="image/*" 
-                                            onDrop={processTarget} 
-                                            disabled={isLoadingResources || isProcessing}
-                                            isProcessing={isProcessing}
-                                            className="w-full h-80 sm:h-96 flex flex-col items-center justify-center border-0 bg-slate-800/20 group hover:bg-slate-800/30 transition-all"
-                                        >
-                                            <div className="relative mb-8 z-20 pointer-events-none">
-                                                <div className="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full group-hover:bg-indigo-500/20 transition-all duration-500"></div>
-                                                <div className={`relative w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-300 ${isProcessing ? 'scale-110 border-indigo-500/50' : 'group-hover:scale-105 group-hover:-translate-y-1'}`}>
-                                                    {isProcessing ? (
-                                                        <div className="w-10 h-10 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-                                                    ) : (
-                                                        <div className="text-indigo-400 group-hover:text-indigo-300 transition-colors">
-                                                            <Icons.Upload />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 text-center z-20 pointer-events-none tracking-tight">
-                                                {isProcessing ? "Analyzing Image Data..." : "Upload Source Image"}
-                                            </h2>
-                                            <p className="text-slate-400 text-sm text-center max-w-xs px-4 leading-relaxed z-20 pointer-events-none">
-                                                {isProcessing 
-                                                    ? "Applying alpha mask reversal..." 
-                                                    : "Drag and drop or click to browse. Supports high-resolution processing."
-                                                }
-                                            </p>
-                                        </FileDrop>
-                                    </div>
-                                ) : (
-                                    <div className="flex-1 flex flex-col animate-fade-in">
-                                        {/* Success Header */}
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
-                                                    <Icons.Sparkles />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-bold text-white text-base">Restoration Complete</h3>
-                                                    <p className="text-xs text-slate-400 font-mono mt-0.5">{imgDimensions.w}x{imgDimensions.h}px <span className="text-slate-600 mx-1">/</span> PNG</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-3">
-                                                <button 
-                                                    onClick={handleReset}
-                                                    className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                                >
-                                                    <Icons.Refresh />
-                                                    <span>Reset</span>
-                                                </button>
-                                                <a 
-                                                    href={processedImageBlob} 
-                                                    download={`restored_${fileName || 'image'}.png`}
-                                                    className="flex-[2] sm:flex-none px-8 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                                >
-                                                    <Icons.Download />
-                                                    <span>Save HD</span>
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        {/* Preview Area */}
-                                        <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 group shadow-inner min-h-[400px]">
-                                            <div className="absolute inset-0 checkerboard opacity-40"></div>
-                                            <div className="relative w-full h-full flex items-center justify-center p-4 overflow-auto">
-                                                <img 
-                                                    src={processedImageBlob} 
-                                                    alt="Restored image with watermark removed" 
-                                                    className="max-w-full max-h-[60vh] object-contain shadow-2xl rounded-sm" 
+                            ) : (
+                                <div className="flex-1 relative flex items-center justify-center bg-[#111] overflow-hidden touch-none"
+                                     onMouseMove={(e)=>updateSel(e.clientX, e.clientY)}
+                                     onTouchMove={(e)=>updateSel(e.touches[0].clientX, e.touches[0].clientY)}
+                                     onMouseUp={()=>dragRef.current=null}
+                                     onTouchEnd={()=>dragRef.current=null}
+                                >
+                                    {mode === 'auto' ? (
+                                        <img src={currentImg.src} className="max-w-full max-h-full object-contain shadow-2xl" />
+                                    ) : (
+                                        <div className="relative shadow-2xl">
+                                            <canvas ref={canvasRef} className="max-w-full max-h-[80vh] block" />
+                                            {/* Selection Overlay */}
+                                            <div className="absolute selection-box cursor-move"
+                                                 style={{ left: `${manualSel.x}%`, top: `${manualSel.y}%`, width: `${manualSel.w}%`, height: `${manualSel.h}%` }}
+                                                 onMouseDown={()=>dragRef.current='move'}
+                                                 onTouchStart={()=>dragRef.current='move'}
+                                            >
+                                                <div className="handle cursor-nwse-resize"
+                                                     onMouseDown={(e)=>{e.stopPropagation(); dragRef.current='size'}}
+                                                     onTouchStart={(e)=>{e.stopPropagation(); dragRef.current='size'}}
                                                 />
                                             </div>
                                         </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* RIGHT: Tools Panel */}
+                        {currentImg && (
+                            <div className="w-full md:w-80 bg-cyber-panel border-t md:border-t-0 md:border-l border-slate-800 order-2 md:order-3 z-20 shrink-0 h-[40vh] md:h-auto overflow-y-auto">
+                                
+                                {/* AUTO MODE CONTROLS */}
+                                {mode === 'auto' && (
+                                    <div className="p-6 space-y-6">
+                                        <div className="text-xs font-bold text-cyber-500 uppercase tracking-widest mb-4">Gemini Auto-Clean</div>
+                                        
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Alignment X (Horizontal)</label>
+                                            <input type="range" min="-50" max="50" value={autoOff.x} onChange={e=>setAutoOff({...autoOff, x: +e.target.value})} className="w-full h-1 bg-slate-600 rounded" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Alignment Y (Vertical)</label>
+                                            <input type="range" min="-50" max="50" value={autoOff.y} onChange={e=>setAutoOff({...autoOff, y: +e.target.value})} className="w-full h-1 bg-slate-600 rounded" />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Strength: {autoStrength}x</label>
+                                            <input type="range" min="0.5" max="1.5" step="0.1" value={autoStrength} onChange={e=>setAutoStrength(+e.target.value)} className="w-full h-1 bg-slate-600 rounded" />
+                                        </div>
+
+                                        <button onClick={runAuto} className="w-full py-3 bg-cyber-600 hover:bg-cyber-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyber-500/20">
+                                            <Icons.Auto /> Apply Auto Clean
+                                        </button>
+                                        <p className="text-[10px] text-slate-500 text-center">Use sliders if you see ghosting/doubling.</p>
                                     </div>
                                 )}
-                            </div>
-                        </div>
 
-                        {/* Features Grid */}
-                        <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 mb-8">
-                            {[
-                                { icon: Icons.Shield, title: "Secure Processing", desc: "Local execution environment. No upload." },
-                                { icon: Icons.Zap, title: "Zero Latency", desc: "Instant WebGL rendering." },
-                                { icon: Icons.Sparkles, title: "Lossless Quality", desc: "Bit-exact pixel restoration." }
-                            ].map((feature, i) => (
-                                <div key={i} className="group p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors flex items-start gap-4">
-                                    <div className="p-2.5 rounded-lg bg-slate-800 text-slate-400 group-hover:text-indigo-400 transition-colors">
-                                        <feature.icon />
+                                {/* MANUAL MODE CONTROLS */}
+                                {mode === 'manual' && (
+                                    <div className="p-6 space-y-6">
+                                        <div className="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-4">Manual Eraser</div>
+                                        
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <button onClick={()=>setManualTool('cloneLeft')} className={`p-3 rounded-lg border text-xs font-bold ${manualTool==='cloneLeft' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-400'}`}>
+                                                ⬅️ Clone Left
+                                            </button>
+                                            <button onClick={()=>setManualTool('blur')} className={`p-3 rounded-lg border text-xs font-bold ${manualTool==='blur' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-400'}`}>
+                                                💧 Blur
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="text-[10px] text-slate-400 leading-relaxed bg-slate-800/50 p-3 rounded">
+                                            <strong>How to remove footer:</strong><br/>
+                                            1. Drag the blue box over the footer logo.<br/>
+                                            2. Select "Clone Left".<br/>
+                                            3. Click Erase. This copies the clean background from the left over the logo.
+                                        </div>
+
+                                        <button onClick={runManual} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                                            <Icons.Erase /> Erase Selected Area
+                                        </button>
                                     </div>
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-slate-200 mb-1">{feature.title}</h4>
-                                        <p className="text-xs text-slate-500 leading-relaxed">{feature.desc}</p>
-                                    </div>
+                                )}
+
+                                {/* DOWNLOAD */}
+                                <div className="p-6 pt-0 mt-auto border-t border-slate-800/50">
+                                    <button onClick={()=>{
+                                        const a = document.createElement('a');
+                                        a.download = 'cleaned_image.png';
+                                        a.href = currentImg.src;
+                                        a.click();
+                                    }} className="w-full mt-6 py-3 bg-white text-black hover:bg-slate-200 rounded-xl font-bold flex items-center justify-center gap-2">
+                                        <Icons.Save /> Save Result
+                                    </button>
                                 </div>
-                            ))}
-                        </div>
-
-                        {/* Error Toast */}
-                        {error && (
-                            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-[90%] bg-red-500/10 backdrop-blur-xl border border-red-500/50 text-red-200 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-slide-in-bottom z-50">
-                                <div className="text-red-400"><Icons.Alert /></div>
-                                <span className="text-sm font-medium">{error}</span>
-                                <button onClick={() => setError("")} className="ml-auto text-red-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-red-500 rounded" aria-label="Dismiss error">✕</button>
                             </div>
                         )}
                     </main>
-
-                    <Footer />
                 </div>
             );
         };
