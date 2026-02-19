@@ -3,75 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GIMG Cleaner v4.0 | Ultimate Suite</title>
+    <title>GIMG Cleaner v5.0 | Professional Suite</title>
     
     <!-- Dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-                    colors: { cyber: { 500: '#0ea5e9', 600: '#0284c7', bg: '#020617', panel: '#0f172a' } }
-                }
-            }
-        }
-    </script>
-
     <style>
-        body { background: #020617; color: #fff; overscroll-behavior: none; }
-        html, body, #root { height: 100dvh; overflow: hidden; }
-        
-        .checkerboard {
+        body {
+            background-color: #0b0f19;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
             background-image: 
-                linear-gradient(45deg, #1e293b 25%, transparent 25%), 
-                linear-gradient(-45deg, #1e293b 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #1e293b 75%), 
-                linear-gradient(-45deg, transparent 75%, #1e293b 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08), transparent 25%);
+            background-attachment: fixed;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        /* Selection Box for Manual Tool */
+        .glass-nav {
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .drop-zone {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23334155' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drop-zone:hover { background-color: rgba(30, 41, 59, 0.3); border-color: #475569; }
+        .drop-zone.active { background-color: rgba(99, 102, 241, 0.05); border-color: #6366f1; }
+
+        .checkerboard {
+            background-color: #111827;
+            background-image: 
+                linear-gradient(45deg, #1f2937 25%, transparent 25%), 
+                linear-gradient(-45deg, #1f2937 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #1f2937 75%), 
+                linear-gradient(-45deg, transparent 75%, #1f2937 75%);
+            background-size: 20px 20px;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            15% { opacity: 1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); }
+            85% { opacity: 1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); }
+            100% { top: 100%; opacity: 0; }
+        }
+        .scanner-line {
+            position: absolute; left: 0; width: 100%; height: 2px;
+            background: #818cf8; animation: scan 1.8s ease-in-out infinite; z-index: 10;
+        }
+
+        /* Manual Selection Styles */
         .selection-box {
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
-            border: 1px solid #0ea5e9;
+            border: 1px solid #6366f1;
             touch-action: none;
         }
         .handle {
-            width: 24px; height: 24px;
-            background: #0ea5e9;
-            border: 2px solid white;
-            border-radius: 50%;
-            position: absolute;
-            bottom: -12px; right: -12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            z-index: 50;
+            width: 20px; height: 20px; background: #6366f1; border: 2px solid white;
+            border-radius: 50%; position: absolute; bottom: -10px; right: -10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 50; cursor: nwse-resize;
+        }
+        
+        input[type=range] {
+            -webkit-appearance: none; background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #818cf8; cursor: pointer; margin-top: -6px; box-shadow: 0 0 10px rgba(99,102,241,0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #334155; border-radius: 2px;
         }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="antialiased selection:bg-indigo-500/30">
+    <div id="root" class="h-full flex flex-col"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+        const { useState, useEffect, useRef } = React;
 
         // --- ICONS ---
         const Icons = {
-            Auto: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
-            Manual: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
-            Save: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
-            Upload: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            Upload: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            Download: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Layers: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
+            Auto: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>,
+            Tools: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
             Undo: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>,
-            Erase: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+            Eraser: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
         };
 
-        // --- MATH ENGINE (AUTO REMOVER) ---
+        // --- CORE LOGIC (V5 Hybrid Engine) ---
         const calculateAlphaMap = (imgData) => {
             const { width, height, data } = imgData;
             const alphaMap = new Float32Array(width * height);
@@ -83,6 +127,7 @@
             return alphaMap;
         };
 
+        // 1. Auto Remover with Offset Support
         const processAuto = (ctx, img, alphaMap, isLarge, strength, offX, offY) => {
             const w = img.width, h = img.height;
             ctx.canvas.width = w; ctx.canvas.height = h;
@@ -115,55 +160,86 @@
             ctx.putImageData(imageData, 0, 0);
         };
 
-        // --- MANUAL ERASER LOGIC ---
+        // 2. Manual Clone Tool
         const processManual = (canvas, rectPercent, mode) => {
             const ctx = canvas.getContext('2d');
             const w = canvas.width, h = canvas.height;
-            
-            const rx = (rectPercent.x/100)*w; 
-            const ry = (rectPercent.y/100)*h;
-            const rw = (rectPercent.w/100)*w; 
-            const rh = (rectPercent.h/100)*h;
+            const rx = (rectPercent.x/100)*w, ry = (rectPercent.y/100)*h;
+            const rw = (rectPercent.w/100)*w, rh = (rectPercent.h/100)*h;
 
             if (mode === 'cloneLeft') {
-                // Take a sliver from left and repeat it
                 const sliceW = 2;
                 const srcX = Math.max(0, rx - sliceW);
-                for(let i=0; i<rw; i+=sliceW) {
-                    ctx.drawImage(canvas, srcX, ry, sliceW, rh, rx+i, ry, sliceW, rh);
-                }
+                for(let i=0; i<rw; i+=sliceW) ctx.drawImage(canvas, srcX, ry, sliceW, rh, rx+i, ry, sliceW, rh);
             } else if (mode === 'blur') {
-                // Box blur simulation
                 const temp = document.createElement('canvas');
                 temp.width = rw; temp.height = rh;
                 const tCtx = temp.getContext('2d');
-                tCtx.filter = 'blur(8px)';
+                tCtx.filter = 'blur(10px)';
                 tCtx.drawImage(canvas, rx, ry, rw, rh, 0, 0, rw, rh);
                 ctx.drawImage(temp, rx, ry);
             }
         };
 
-        // --- APP COMPONENT ---
+        // --- COMPONENTS ---
+        const FileDrop = ({ onDrop, isProcessing }) => {
+            const [isOver, setIsOver] = useState(false);
+            const inputRef = useRef(null);
+            
+            const handleDrop = (e) => {
+                e.preventDefault(); setIsOver(false);
+                if (e.dataTransfer.files?.[0]) onDrop(e.dataTransfer.files[0]);
+            };
+
+            return (
+                <div 
+                    onClick={() => inputRef.current.click()}
+                    onDragOver={(e) => { e.preventDefault(); setIsOver(true); }}
+                    onDragLeave={() => setIsOver(false)}
+                    onDrop={handleDrop}
+                    className={`drop-zone relative rounded-3xl cursor-pointer overflow-hidden flex flex-col items-center justify-center h-80 sm:h-96 border-0 bg-slate-800/20 group hover:bg-slate-800/30 ${isOver ? 'active' : ''}`}
+                >
+                    <input type="file" ref={inputRef} className="hidden" accept="image/*" onChange={(e) => e.target.files[0] && onDrop(e.target.files[0])} />
+                    {isProcessing && <div className="scanner-line"></div>}
+                    
+                    <div className="relative mb-8 z-20 pointer-events-none">
+                        <div className="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+                        <div className={`relative w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-300 ${isProcessing ? 'scale-110 border-indigo-500/50' : 'group-hover:scale-105 group-hover:-translate-y-1'}`}>
+                            {isProcessing ? (
+                                <div className="w-10 h-10 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                            ) : (
+                                <div className="text-indigo-400 group-hover:text-indigo-300 transition-colors"><Icons.Upload /></div>
+                            )}
+                        </div>
+                    </div>
+                    <h2 className="text-xl font-bold text-white mb-2 z-20">{isProcessing ? "Processing..." : "Upload Image"}</h2>
+                    <p className="text-slate-400 text-sm z-20">Auto-detects Gemini Watermarks</p>
+                </div>
+            );
+        };
+
         const App = () => {
             const [masks, setMasks] = useState({ small: null, large: null });
-            const [file, setFile] = useState(null);
-            const [baseImg, setBaseImg] = useState(null); // The original uploaded image
-            const [currentImg, setCurrentImg] = useState(null); // The current state (after edits)
-            const [history, setHistory] = useState([]); // For Undo
+            const [isLoading, setIsLoading] = useState(true);
+            const [baseImg, setBaseImg] = useState(null); // Original
+            const [currentImg, setCurrentImg] = useState(null); // Edited
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [history, setHistory] = useState([]);
+
+            // Mode State
+            const [activeTab, setActiveTab] = useState('auto'); // 'auto' | 'manual'
             
-            const [mode, setMode] = useState('auto'); // 'auto', 'manual'
-            
-            // Auto Settings
-            const [autoStrength, setAutoStrength] = useState(1.0);
-            const [autoOff, setAutoOff] = useState({ x: 0, y: 0 });
-            
-            // Manual Settings
+            // Auto Params
+            const [strength, setStrength] = useState(1.0);
+            const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+            // Manual Params
             const [manualSel, setManualSel] = useState({ x: 40, y: 80, w: 20, h: 10 });
             const [manualTool, setManualTool] = useState('cloneLeft');
             const canvasRef = useRef(null);
             const dragRef = useRef(null);
 
-            // Load Resources
+            // Init
             useEffect(() => {
                 const load = (url, s) => new Promise(r => {
                     const i = new Image(); i.crossOrigin="Anonymous";
@@ -177,78 +253,78 @@
                 Promise.all([
                     load('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_48.png', 48),
                     load('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_96.png', 96)
-                ]).then(([s, l]) => setMasks({ small: s, large: l }));
+                ]).then(([s, l]) => { setMasks({ small: s, large: l }); setIsLoading(false); });
             }, []);
 
-            // Handle Image Upload
-            const handleUpload = (f) => {
-                if(!f) return;
+            // Image Handler
+            const handleFile = (file) => {
+                setIsProcessing(true);
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        setFile(f);
+                        // 1. Set Base State
                         setBaseImg(img);
-                        setCurrentImg(img); // Start with clean slate
-                        setHistory([]); // Reset undo
-                        // Auto-run cleaner first? No, let user choose.
+                        setHistory([]);
+                        setStrength(1.0);
+                        setOffset({x:0, y:0});
+
+                        // 2. Auto-Run Detection on Upload
+                        setTimeout(() => {
+                            if (masks.small) {
+                                const cvs = document.createElement('canvas');
+                                const ctx = cvs.getContext('2d');
+                                const isLarge = img.width > 1024 && img.height > 1024;
+                                processAuto(ctx, img, isLarge ? masks.large : masks.small, isLarge, 1.0, 0, 0);
+                                const processed = new Image();
+                                processed.onload = () => {
+                                    setCurrentImg(processed);
+                                    setIsProcessing(false);
+                                };
+                                processed.src = cvs.toDataURL();
+                            }
+                        }, 800); // Fake delay for "Scanning" effect
                     };
                     img.src = e.target.result;
                 };
-                reader.readAsDataURL(f);
+                reader.readAsDataURL(file);
             };
 
-            // Run Auto Cleaner
-            const runAuto = () => {
-                if (!currentImg || !masks.small) return;
+            // Re-Run Auto (Undo then apply new settings)
+            const applyAuto = () => {
+                if (!baseImg || !masks.small) return;
                 const cvs = document.createElement('canvas');
                 const ctx = cvs.getContext('2d');
-                const isLarge = currentImg.width > 1024 && currentImg.height > 1024;
-                
-                processAuto(ctx, currentImg, isLarge ? masks.large : masks.small, isLarge, autoStrength, autoOff.x, autoOff.y);
-                
-                const newImg = new Image();
-                newImg.onload = () => {
-                    addToHistory();
-                    setCurrentImg(newImg);
-                };
-                newImg.src = cvs.toDataURL();
+                const isLarge = baseImg.width > 1024 && baseImg.height > 1024;
+                processAuto(ctx, baseImg, isLarge ? masks.large : masks.small, isLarge, strength, offset.x, offset.y);
+                const res = new Image();
+                res.onload = () => setCurrentImg(res);
+                res.src = cvs.toDataURL();
             };
 
-            // Run Manual Eraser
-            const runManual = () => {
-                const cvs = canvasRef.current;
-                if(!cvs) return;
-                
-                // Process directly on canvas content
-                processManual(cvs, manualSel, manualTool);
-                
-                const newImg = new Image();
-                newImg.onload = () => {
-                    addToHistory();
-                    setCurrentImg(newImg);
+            // Run Manual
+            const applyManual = () => {
+                if (!canvasRef.current) return;
+                processManual(canvasRef.current, manualSel, manualTool);
+                const res = new Image();
+                res.onload = () => {
+                    setHistory(prev => [...prev.slice(-5), currentImg]); // Save undo
+                    setCurrentImg(res);
                 };
-                newImg.src = cvs.toDataURL();
-            };
-
-            const addToHistory = () => {
-                if (currentImg) setHistory(prev => [...prev.slice(-4), currentImg]);
+                res.src = canvasRef.current.toDataURL();
             };
 
             const undo = () => {
-                if (history.length === 0) return;
-                const prev = history[history.length - 1];
-                setCurrentImg(prev);
+                if(history.length===0) return;
+                setCurrentImg(history[history.length-1]);
                 setHistory(h => h.slice(0, -1));
             };
 
-            // Manual Selection Interaction
+            // Manual Selection
             const updateSel = (cx, cy) => {
                 if (!dragRef.current || !canvasRef.current) return;
                 const r = canvasRef.current.getBoundingClientRect();
-                const px = ((cx - r.left)/r.width)*100;
-                const py = ((cy - r.top)/r.height)*100;
-                
+                const px = ((cx - r.left)/r.width)*100, py = ((cy - r.top)/r.height)*100;
                 setManualSel(prev => {
                     if (dragRef.current === 'move') return { ...prev, x: px - prev.w/2, y: py - prev.h/2 };
                     if (dragRef.current === 'size') return { ...prev, w: Math.max(1, px - prev.x), h: Math.max(1, py - prev.y) };
@@ -256,146 +332,171 @@
                 });
             };
 
-            // Canvas Render (for Manual Mode)
+            // Canvas Sync
             useEffect(() => {
-                if (mode === 'manual' && currentImg && canvasRef.current) {
+                if (activeTab === 'manual' && currentImg && canvasRef.current) {
                     const cvs = canvasRef.current;
-                    const ctx = cvs.getContext('2d');
-                    cvs.width = currentImg.width;
-                    cvs.height = currentImg.height;
-                    ctx.drawImage(currentImg, 0, 0);
+                    cvs.width = currentImg.width; cvs.height = currentImg.height;
+                    cvs.getContext('2d').drawImage(currentImg, 0, 0);
                 }
-            }, [mode, currentImg]);
+            }, [activeTab, currentImg]);
 
-            // --- RENDER ---
+            // Debounce Auto Settings
+            useEffect(() => {
+                if (activeTab === 'auto' && baseImg) {
+                    const t = setTimeout(applyAuto, 100);
+                    return () => clearTimeout(t);
+                }
+            }, [strength, offset]);
+
+            // --- VIEW ---
             return (
-                <div className="flex flex-col h-full bg-cyber-bg text-slate-200">
-                    
-                    {/* Header */}
-                    <header className="h-14 bg-cyber-panel border-b border-slate-800 flex items-center justify-between px-4 shrink-0 z-50">
-                        <div className="flex items-center gap-2 font-bold text-white">
-                            <div className="w-6 h-6 bg-cyber-600 rounded flex items-center justify-center text-xs">G</div>
-                            <span>Cleaner <span className="text-cyber-500">v4.0</span></span>
-                        </div>
-                        {currentImg && (
-                            <div className="flex bg-slate-800 rounded-lg p-1 gap-1">
-                                <button onClick={()=>setMode('auto')} className={`px-3 py-1 text-xs rounded transition-colors ${mode==='auto' ? 'bg-cyber-600 text-white' : 'text-slate-400'}`}>Auto Clean</button>
-                                <button onClick={()=>setMode('manual')} className={`px-3 py-1 text-xs rounded transition-colors ${mode==='manual' ? 'bg-cyber-600 text-white' : 'text-slate-400'}`}>Manual Tools</button>
+                <div className="flex flex-col h-full">
+                    {/* NAV */}
+                    <header className="glass-nav sticky top-0 z-50 w-full flex-none">
+                        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400"><Icons.Layers /></div>
+                                <span className="font-bold text-white text-lg tracking-tight">GIMG Cleaner <span className="text-xs bg-indigo-600 px-1.5 py-0.5 rounded ml-2">v5.0</span></span>
                             </div>
-                        )}
-                        {history.length > 0 && (
-                            <button onClick={undo} className="text-slate-400 hover:text-white"><Icons.Undo/></button>
-                        )}
-                    </header>
-
-                    {/* Main Area */}
-                    <main className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-                        
-                        {/* LEFT: Canvas */}
-                        <div className="flex-1 bg-black relative flex flex-col order-1 md:order-2 overflow-hidden">
-                            {!currentImg ? (
-                                <div className="absolute inset-0 flex items-center justify-center p-6 checkerboard">
-                                    <label className="flex flex-col items-center justify-center w-full max-w-sm aspect-square border-2 border-dashed border-slate-700 rounded-2xl bg-slate-900/80 cursor-pointer hover:border-cyber-500 transition-colors">
-                                        <input type="file" className="hidden" accept="image/*" onChange={(e)=>handleUpload(e.target.files[0])} />
-                                        <div className="text-cyber-500 mb-4 scale-150"><Icons.Upload/></div>
-                                        <span className="font-bold">Upload Image</span>
-                                    </label>
-                                </div>
-                            ) : (
-                                <div className="flex-1 relative flex items-center justify-center bg-[#111] overflow-hidden touch-none"
-                                     onMouseMove={(e)=>updateSel(e.clientX, e.clientY)}
-                                     onTouchMove={(e)=>updateSel(e.touches[0].clientX, e.touches[0].clientY)}
-                                     onMouseUp={()=>dragRef.current=null}
-                                     onTouchEnd={()=>dragRef.current=null}
-                                >
-                                    {mode === 'auto' ? (
-                                        <img src={currentImg.src} className="max-w-full max-h-full object-contain shadow-2xl" />
-                                    ) : (
-                                        <div className="relative shadow-2xl">
-                                            <canvas ref={canvasRef} className="max-w-full max-h-[80vh] block" />
-                                            {/* Selection Overlay */}
-                                            <div className="absolute selection-box cursor-move"
-                                                 style={{ left: `${manualSel.x}%`, top: `${manualSel.y}%`, width: `${manualSel.w}%`, height: `${manualSel.h}%` }}
-                                                 onMouseDown={()=>dragRef.current='move'}
-                                                 onTouchStart={()=>dragRef.current='move'}
-                                            >
-                                                <div className="handle cursor-nwse-resize"
-                                                     onMouseDown={(e)=>{e.stopPropagation(); dragRef.current='size'}}
-                                                     onTouchStart={(e)=>{e.stopPropagation(); dragRef.current='size'}}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
+                            {currentImg && (
+                                <div className="flex gap-2">
+                                    <button onClick={undo} disabled={history.length===0} className="p-2 text-slate-400 hover:text-white disabled:opacity-30"><Icons.Undo /></button>
+                                    <button onClick={() => { setCurrentImg(null); setBaseImg(null); }} className="px-4 py-1.5 text-xs font-bold text-slate-300 bg-slate-800 rounded-lg hover:bg-slate-700">New Image</button>
                                 </div>
                             )}
                         </div>
+                    </header>
 
-                        {/* RIGHT: Tools Panel */}
-                        {currentImg && (
-                            <div className="w-full md:w-80 bg-cyber-panel border-t md:border-t-0 md:border-l border-slate-800 order-2 md:order-3 z-20 shrink-0 h-[40vh] md:h-auto overflow-y-auto">
+                    {/* MAIN */}
+                    <main className="flex-1 flex overflow-hidden relative">
+                        {!currentImg ? (
+                            // UPLOAD VIEW
+                            <div className="w-full flex flex-col items-center justify-center p-4">
+                                <div className="max-w-2xl w-full text-center mb-8 animate-in slide-in-from-bottom-4">
+                                    <h1 className="text-4xl font-bold text-white mb-2">Image Restoration</h1>
+                                    <p className="text-slate-400">Remove Watermarks & Custom Footers</p>
+                                </div>
+                                <div className="max-w-3xl w-full glass-panel rounded-3xl p-1 shadow-2xl animate-in zoom-in-95 delay-100">
+                                    <div className="bg-slate-950/40 rounded-[1.4rem] p-6">
+                                        {isLoading ? (
+                                            <div className="h-80 flex flex-col items-center justify-center text-slate-400 gap-4">
+                                                <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                                                <span>Loading Neural Models...</span>
+                                            </div>
+                                        ) : (
+                                            <FileDrop onDrop={handleFile} isProcessing={isProcessing} />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            // EDITOR VIEW
+                            <div className="w-full h-full flex flex-col md:flex-row">
                                 
-                                {/* AUTO MODE CONTROLS */}
-                                {mode === 'auto' && (
-                                    <div className="p-6 space-y-6">
-                                        <div className="text-xs font-bold text-cyber-500 uppercase tracking-widest mb-4">Gemini Auto-Clean</div>
-                                        
-                                        <div>
-                                            <label className="text-xs text-slate-400 block mb-1">Alignment X (Horizontal)</label>
-                                            <input type="range" min="-50" max="50" value={autoOff.x} onChange={e=>setAutoOff({...autoOff, x: +e.target.value})} className="w-full h-1 bg-slate-600 rounded" />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-slate-400 block mb-1">Alignment Y (Vertical)</label>
-                                            <input type="range" min="-50" max="50" value={autoOff.y} onChange={e=>setAutoOff({...autoOff, y: +e.target.value})} className="w-full h-1 bg-slate-600 rounded" />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs text-slate-400 block mb-1">Strength: {autoStrength}x</label>
-                                            <input type="range" min="0.5" max="1.5" step="0.1" value={autoStrength} onChange={e=>setAutoStrength(+e.target.value)} className="w-full h-1 bg-slate-600 rounded" />
-                                        </div>
-
-                                        <button onClick={runAuto} className="w-full py-3 bg-cyber-600 hover:bg-cyber-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-cyber-500/20">
-                                            <Icons.Auto /> Apply Auto Clean
-                                        </button>
-                                        <p className="text-[10px] text-slate-500 text-center">Use sliders if you see ghosting/doubling.</p>
+                                {/* LEFT: CANVAS */}
+                                <div className="flex-1 bg-[#050914] relative flex items-center justify-center overflow-hidden">
+                                    <div className="absolute inset-0 checkerboard opacity-50 pointer-events-none"></div>
+                                    
+                                    <div className="relative max-w-full max-h-full p-4 flex items-center justify-center touch-none"
+                                         onMouseMove={e => updateSel(e.clientX, e.clientY)}
+                                         onTouchMove={e => updateSel(e.touches[0].clientX, e.touches[0].clientY)}
+                                         onMouseUp={() => dragRef.current = null}
+                                         onTouchEnd={() => dragRef.current = null}
+                                    >
+                                        {activeTab === 'auto' ? (
+                                            <img src={currentImg.src} className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded" />
+                                        ) : (
+                                            <div className="relative shadow-2xl">
+                                                <canvas ref={canvasRef} className="max-w-full max-h-[85vh] block rounded" />
+                                                <div className="absolute selection-box cursor-move"
+                                                     style={{ left: `${manualSel.x}%`, top: `${manualSel.y}%`, width: `${manualSel.w}%`, height: `${manualSel.h}%` }}
+                                                     onMouseDown={() => dragRef.current = 'move'}
+                                                     onTouchStart={() => dragRef.current = 'move'}
+                                                >
+                                                    <div className="handle"
+                                                         onMouseDown={(e) => { e.stopPropagation(); dragRef.current = 'size'; }}
+                                                         onTouchStart={(e) => { e.stopPropagation(); dragRef.current = 'size'; }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                </div>
 
-                                {/* MANUAL MODE CONTROLS */}
-                                {mode === 'manual' && (
-                                    <div className="p-6 space-y-6">
-                                        <div className="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-4">Manual Eraser</div>
-                                        
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <button onClick={()=>setManualTool('cloneLeft')} className={`p-3 rounded-lg border text-xs font-bold ${manualTool==='cloneLeft' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-400'}`}>
-                                                ⬅️ Clone Left
-                                            </button>
-                                            <button onClick={()=>setManualTool('blur')} className={`p-3 rounded-lg border text-xs font-bold ${manualTool==='blur' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-400'}`}>
-                                                💧 Blur
-                                            </button>
-                                        </div>
-                                        
-                                        <div className="text-[10px] text-slate-400 leading-relaxed bg-slate-800/50 p-3 rounded">
-                                            <strong>How to remove footer:</strong><br/>
-                                            1. Drag the blue box over the footer logo.<br/>
-                                            2. Select "Clone Left".<br/>
-                                            3. Click Erase. This copies the clean background from the left over the logo.
-                                        </div>
-
-                                        <button onClick={runManual} className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
-                                            <Icons.Erase /> Erase Selected Area
+                                {/* RIGHT: SIDEBAR */}
+                                <div className="w-full md:w-80 glass-panel border-l border-white/5 flex flex-col z-20 md:h-full">
+                                    
+                                    {/* Tabs */}
+                                    <div className="flex border-b border-white/5">
+                                        <button onClick={() => setActiveTab('auto')} className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 ${activeTab==='auto' ? 'text-indigo-400 bg-indigo-500/10 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-white'}`}>
+                                            <Icons.Auto /> Auto Fix
+                                        </button>
+                                        <button onClick={() => setActiveTab('manual')} className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 ${activeTab==='manual' ? 'text-indigo-400 bg-indigo-500/10 border-b-2 border-indigo-500' : 'text-slate-400 hover:text-white'}`}>
+                                            <Icons.Tools /> Manual
                                         </button>
                                     </div>
-                                )}
 
-                                {/* DOWNLOAD */}
-                                <div className="p-6 pt-0 mt-auto border-t border-slate-800/50">
-                                    <button onClick={()=>{
-                                        const a = document.createElement('a');
-                                        a.download = 'cleaned_image.png';
-                                        a.href = currentImg.src;
-                                        a.click();
-                                    }} className="w-full mt-6 py-3 bg-white text-black hover:bg-slate-200 rounded-xl font-bold flex items-center justify-center gap-2">
-                                        <Icons.Save /> Save Result
-                                    </button>
+                                    {/* Controls Content */}
+                                    <div className="p-6 flex-1 overflow-y-auto">
+                                        
+                                        {activeTab === 'auto' && (
+                                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                                                <div className="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl text-xs text-indigo-200">
+                                                    <strong>Status:</strong> Watermark Removed.<br/>
+                                                    Adjust sliders below if you see a "double logo" ghost.
+                                                </div>
+                                                
+                                                <div>
+                                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Horizontal Alignment (X)</label>
+                                                    <input type="range" min="-50" max="50" value={offset.x} onChange={(e) => setOffset({ ...offset, x: +e.target.value })} className="w-full" />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Vertical Alignment (Y)</label>
+                                                    <input type="range" min="-50" max="50" value={offset.y} onChange={(e) => setOffset({ ...offset, y: +e.target.value })} className="w-full" />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Removal Strength</label>
+                                                    <input type="range" min="0.5" max="1.5" step="0.1" value={strength} onChange={(e) => setStrength(+e.target.value)} className="w-full" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {activeTab === 'manual' && (
+                                            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                                                 <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl text-xs text-emerald-200 leading-relaxed">
+                                                    <strong>Use this to remove footers.</strong><br/>
+                                                    Drag the Blue Box over the footer logo, select "Clone Left", and click Erase.
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <button onClick={() => setManualTool('cloneLeft')} className={`p-3 rounded-xl border text-xs font-bold text-center transition-all ${manualTool==='cloneLeft' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-400 hover:border-slate-500'}`}>
+                                                        ⬅️ Clone Left
+                                                    </button>
+                                                    <button onClick={() => setManualTool('blur')} className={`p-3 rounded-xl border text-xs font-bold text-center transition-all ${manualTool==='blur' ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-400 hover:border-slate-500'}`}>
+                                                        💧 Blur
+                                                    </button>
+                                                </div>
+
+                                                <button onClick={applyManual} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+                                                    <Icons.Eraser /> Erase Selected Area
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Footer Action */}
+                                    <div className="p-6 border-t border-white/5 bg-slate-900/40">
+                                        <button onClick={() => {
+                                            const a = document.createElement('a');
+                                            a.download = 'cleaned_image.png';
+                                            a.href = currentImg.src;
+                                            a.click();
+                                        }} className="w-full py-3 bg-white hover:bg-slate-200 text-slate-900 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl transition-colors">
+                                            <Icons.Download /> Save Image
+                                        </button>
+                                    </div>
+
                                 </div>
                             </div>
                         )}
