@@ -3,140 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GIMG Cleaner | Professional Image Restoration</title>
+    <title>GIMG Cleaner v2.0 | Advanced Image Restoration</title>
+    
+    <!-- Core Dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            500: '#0ea5e9', // Sky blue
+                            600: '#0284c7',
+                            accent: '#f43f5e', // Rose
+                            dark: '#020617', // Slate 950
+                            panel: '#0f172a', // Slate 900
+                        }
+                    },
+                    animation: {
+                        'scan': 'scan 2s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        scan: {
+                            '0%': { transform: 'translateY(-100%)', opacity: '0' },
+                            '50%': { opacity: '1' },
+                            '100%': { transform: 'translateY(100%)', opacity: '0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         body {
-            background-color: #0b0f19;
+            background-color: #020617;
             color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08), transparent 25%);
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            overflow: hidden; /* App-like feel */
         }
         
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
         
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 40px -10px rgba(0, 0, 0, 0.5);
         }
 
-        .glass-nav {
-            background: rgba(11, 15, 25, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .drop-zone {
-            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23334155' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .drop-zone:hover {
-            background-color: rgba(30, 41, 59, 0.3);
-            border-color: #475569;
-        }
-        .drop-zone.active {
-            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%236366F1' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-            background-color: rgba(99, 102, 241, 0.05);
-            transform: scale-[1.005];
+        .grid-bg {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
         }
 
         .checkerboard {
-            background-color: #111827;
+            background-color: #1e293b;
             background-image: 
-                linear-gradient(45deg, #1f2937 25%, transparent 25%), 
-                linear-gradient(-45deg, #1f2937 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #1f2937 75%), 
-                linear-gradient(-45deg, transparent 75%, #1f2937 75%);
+                linear-gradient(45deg, #0f172a 25%, transparent 25%), 
+                linear-gradient(-45deg, #0f172a 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #0f172a 75%), 
+                linear-gradient(-45deg, transparent 75%, #0f172a 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
-        @keyframes scan {
-            0% { top: 0%; opacity: 0; }
-            15% { opacity: 1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); }
-            85% { opacity: 1; box-shadow: 0 0 15px rgba(99, 102, 241, 0.6); }
-            100% { top: 100%; opacity: 0; }
+        /* Slider Handle Styles */
+        .slider-handle {
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
         }
-        .scanner-line {
-            position: absolute;
-            left: 0;
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #f8fafc;
+            margin-top: -6px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 2px;
-            background: #818cf8;
-            animation: scan 1.8s ease-in-out infinite;
-            z-index: 10;
+            height: 4px;
+            background: #334155;
+            border-radius: 2px;
         }
     </style>
 </head>
-<body class="antialiased selection:bg-indigo-500/30">
-    <div id="root" class="flex flex-col min-h-screen"></div>
+<body>
+    <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
-        // --- ICONS (Professional / Abstract) ---
+        // --- ICONS ---
         const Icons = {
-            Upload: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
-            Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-            Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>,
-            Sparkles: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></svg>,
-            Shield: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-            Zap: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
-            Layers: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>,
-            Alert: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Upload: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+            Download: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>,
+            ZoomIn: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>,
+            ZoomOut: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>,
+            Compare: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M12 3v18"/></svg>,
+            Settings: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.39a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
+            Check: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
         };
 
-        // --- Core Logic ---
+        // --- MATH ENGINE ---
         const calculateAlphaMap = (imgData) => {
             const { width, height, data } = imgData;
             const alphaMap = new Float32Array(width * height);
             for (let i = 0; i < alphaMap.length; i++) {
                 const idx = i * 4;
+                // Grayscale luminance approximation for the mask
                 const val = Math.max(data[idx], data[idx + 1], data[idx + 2]);
                 alphaMap[i] = val / 255.0;
             }
             return alphaMap;
         };
 
-        const removeWatermark = (ctx, targetImg, alphaMap, isLarge) => {
-            const width = targetImg.width;
-            const height = targetImg.height;
+        const processImage = (ctx, originalImg, alphaMap, isLarge, strength = 1.0) => {
+            const width = originalImg.width;
+            const height = originalImg.height;
             
             ctx.canvas.width = width;
             ctx.canvas.height = height;
-            ctx.drawImage(targetImg, 0, 0);
+            ctx.drawImage(originalImg, 0, 0);
 
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
 
             const wmSize = isLarge ? 96 : 48;
-            const margin = isLarge ? 64 : 32;
-
+            const margin = isLarge ? 64 : 32; // Standard Gemini margins
             const startX = width - wmSize - margin;
             const startY = height - wmSize - margin;
 
             if (startX < 0 || startY < 0) return imageData;
 
             const LOGO_VALUE = 255;
-            const MAX_ALPHA = 0.99;
-            const ALPHA_THRESHOLD = 0.002;
-
+            const MAX_ALPHA = 0.99; // Cap to prevent division by zero or artifacts
+            
+            // Optimization: Only loop through the watermark area
             for (let row = 0; row < wmSize; row++) {
                 for (let col = 0; col < wmSize; col++) {
                     const globalX = startX + col;
@@ -149,14 +177,23 @@
                     
                     let alpha = alphaMap[maskIdx];
 
-                    if (alpha < ALPHA_THRESHOLD) continue;
+                    // Strength Modifier: Allows user to reduce the effect if it's too aggressive
+                    // or boost it slightly (though boosting alpha > 1 isn't physically correct, 
+                    // we clamp to logic). Here we dampen the removal if strength < 1.
+                    alpha = alpha * strength;
+
+                    if (alpha < 0.005) continue; // Noise floor
                     alpha = Math.min(alpha, MAX_ALPHA);
 
                     const oneMinusAlpha = 1.0 - alpha;
 
                     for (let c = 0; c < 3; c++) {
                         const watermarkedVal = data[pixelIdx + c];
+                        // Inverse Alpha Blending Formula:
+                        // Original = (Composite - (Alpha * Foreground)) / (1 - Alpha)
                         let originalVal = (watermarkedVal - (alpha * LOGO_VALUE)) / oneMinusAlpha;
+                        
+                        // Clamp result
                         originalVal = Math.max(0, Math.min(255, Math.round(originalVal)));
                         data[pixelIdx + c] = originalVal;
                     }
@@ -165,313 +202,404 @@
             return imageData;
         };
 
-        const FileDrop = ({ onDrop, accept, children, className, disabled, isProcessing }) => {
-            const [isOver, setIsOver] = useState(false);
-            const inputRef = useRef(null);
+        // --- COMPONENTS ---
 
-            const handleDragOver = (e) => {
-                e.preventDefault();
-                if (!disabled) setIsOver(true);
-            };
+        const CompareSlider = ({ originalSrc, processedSrc, zoom, pan, dimensions }) => {
+            const [sliderPos, setSliderPos] = useState(50);
+            const containerRef = useRef(null);
+            const isDragging = useRef(false);
 
-            const handleDragLeave = () => setIsOver(false);
+            const handleMove = useCallback((e) => {
+                if (!isDragging.current || !containerRef.current) return;
+                
+                const rect = containerRef.current.getBoundingClientRect();
+                const x = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+                const pos = ((x - rect.left) / rect.width) * 100;
+                setSliderPos(Math.min(100, Math.max(0, pos)));
+            }, []);
 
-            const handleDrop = (e) => {
-                e.preventDefault();
-                setIsOver(false);
-                if (!disabled && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                    onDrop(e.dataTransfer.files[0]);
-                }
-            };
-            
-            const handleClick = () => {
-                if (!disabled) inputRef.current.click();
-            };
+            const startDrag = () => isDragging.current = true;
+            const stopDrag = () => isDragging.current = false;
+
+            useEffect(() => {
+                window.addEventListener('mousemove', handleMove);
+                window.addEventListener('mouseup', stopDrag);
+                window.addEventListener('touchmove', handleMove);
+                window.addEventListener('touchend', stopDrag);
+                return () => {
+                    window.removeEventListener('mousemove', handleMove);
+                    window.removeEventListener('mouseup', stopDrag);
+                    window.removeEventListener('touchmove', handleMove);
+                    window.removeEventListener('touchend', stopDrag);
+                };
+            }, [handleMove]);
 
             return (
                 <div 
-                    onClick={handleClick}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`drop-zone relative rounded-3xl cursor-pointer transition-all duration-300 overflow-hidden ${isOver ? 'active' : ''} ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    ref={containerRef}
+                    className="relative w-full h-full overflow-hidden select-none cursor-crosshair"
+                    onMouseDown={startDrag}
+                    onTouchStart={startDrag}
                 >
-                    <input 
-                        type="file" 
-                        ref={inputRef} 
-                        className="hidden" 
-                        accept={accept} 
-                        onChange={(e) => e.target.files.length > 0 && onDrop(e.target.files[0])}
-                        disabled={disabled}
-                    />
-                    {isProcessing && <div className="scanner-line"></div>}
-                    {children}
+                    {/* Container for Zoom/Pan */}
+                    <div 
+                        className="absolute origin-center transition-transform duration-75 ease-out will-change-transform"
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`
+                        }}
+                    >
+                        {/* Wrapper to maintain aspect ratio */}
+                        <div className="relative shadow-2xl" style={{
+                            width: dimensions.w ? `${dimensions.w}px` : 'auto',
+                            height: dimensions.h ? `${dimensions.h}px` : 'auto',
+                            maxWidth: '100%',
+                            maxHeight: '100%'
+                        }}>
+                            {/* Layer 1: Processed Image (Background) */}
+                            <img 
+                                src={processedSrc} 
+                                className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none"
+                                draggable="false"
+                            />
+
+                            {/* Layer 2: Original Image (Foreground, Clipped) */}
+                            <div 
+                                className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none"
+                                style={{ width: `${sliderPos}%` }}
+                            >
+                                <img 
+                                    src={originalSrc} 
+                                    className="absolute top-0 left-0 max-w-none h-full object-contain"
+                                    style={{ width: dimensions.w ? `${dimensions.w}px` : '100%' }} // Fix aspect inside clip
+                                    draggable="false"
+                                />
+                                {/* Label */}
+                                <div className="absolute top-4 left-4 bg-black/50 backdrop-blur text-white text-[10px] px-2 py-1 rounded font-mono border border-white/10">
+                                    ORIGINAL
+                                </div>
+                            </div>
+
+                             {/* Label for Background */}
+                             <div className="absolute top-4 right-4 bg-cyber-500/20 backdrop-blur text-cyber-500 text-[10px] px-2 py-1 rounded font-mono border border-cyber-500/30">
+                                CLEANED
+                            </div>
+
+                            {/* Slider Handle Line */}
+                            <div 
+                                className="absolute top-0 bottom-0 w-0.5 bg-white cursor-col-resize z-10"
+                                style={{ left: `${sliderPos}%` }}
+                            >
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-cyber-500 rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(14,165,233,0.5)] slider-handle">
+                                    <Icons.Compare />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
         };
 
-        const Header = () => (
-            <header className="glass-nav sticky top-0 z-50 w-full">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center gap-3">
-                            {/* Abstract Logo */}
-                            <div className="w-8 h-8 bg-indigo-500/10 border border-indigo-500/20 rounded-lg flex items-center justify-center text-indigo-400">
-                                <Icons.Layers />
-                            </div>
-                            <span className="font-bold text-white text-lg tracking-tight">GIMG Cleaner</span>
-                        </div>
-                        <nav className="flex items-center gap-3">
-                            <span className="text-[10px] font-bold tracking-widest bg-slate-800 text-slate-400 px-2 py-1 rounded uppercase">Pro</span>
-                        </nav>
-                    </div>
-                </div>
-            </header>
-        );
-
-        const Footer = () => (
-            <footer className="border-t border-white/5 bg-slate-900/50 mt-auto">
-                <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div className="text-center md:text-left">
-                            <p className="text-sm text-slate-400">
-                                &copy; {new Date().getFullYear()} GIMG Technologies. All rights reserved.
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-6">
-                            <a href="#" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Privacy Policy</a>
-                            <a href="#" className="text-sm text-slate-400 hover:text-indigo-400 transition-colors">Terms of Service</a>
-                            <span className="text-xs text-slate-600">v2.4.0</span>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-        );
-
         const App = () => {
             const [mask48, setMask48] = useState(null);
             const [mask96, setMask96] = useState(null);
-            const [processedImage, setProcessedImage] = useState(null);
+            
+            const [originalFile, setOriginalFile] = useState(null);
+            const [originalImageSrc, setOriginalImageSrc] = useState(null);
+            const [processedImageSrc, setProcessedImageSrc] = useState(null);
+            
             const [isProcessing, setIsProcessing] = useState(false);
             const [isLoadingResources, setIsLoadingResources] = useState(true);
-            const [fileName, setFileName] = useState("");
+            const [strength, setStrength] = useState(1.0); // 0.5 to 1.5
+            const [zoom, setZoom] = useState(1);
+            const [pan, setPan] = useState({ x: 0, y: 0 });
+            
+            const [dimensions, setDimensions] = useState({ w: 0, h: 0 });
             const [error, setError] = useState("");
-            const [imgDimensions, setImgDimensions] = useState({ w: 0, h: 0 });
 
+            // --- Initialization ---
             useEffect(() => {
-                const loadMasks = async () => {
-                    try {
-                        const loadImg = (url, size) => new Promise((resolve, reject) => {
-                            const img = new Image();
-                            img.crossOrigin = "Anonymous";
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = size;
-                                canvas.height = size;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0);
-                                resolve(calculateAlphaMap(ctx.getImageData(0, 0, size, size)));
-                            };
-                            img.onerror = () => reject();
-                            img.src = url;
-                        });
+                const loadResources = async () => {
+                    const loadImg = (url, size) => new Promise((resolve, reject) => {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.onload = () => {
+                            const cvs = document.createElement('canvas');
+                            cvs.width = size; cvs.height = size;
+                            const ctx = cvs.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            resolve(calculateAlphaMap(ctx.getImageData(0, 0, size, size)));
+                        };
+                        img.onerror = () => reject();
+                        img.src = url;
+                    });
 
+                    try {
                         const [m48, m96] = await Promise.all([
                             loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_48.png', 48),
                             loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_96.png', 96)
                         ]);
-
                         setMask48(m48);
                         setMask96(m96);
-                    } catch (err) {
-                        setError("System initialization failed. Please reload.");
+                    } catch (e) {
+                        setError("Failed to load AI models (masks). Check internet connection.");
                     } finally {
                         setIsLoadingResources(false);
                     }
                 };
-                loadMasks();
+                loadResources();
             }, []);
 
-            const processTarget = (file) => {
-                if (!mask48 || !mask96) return;
+            // --- Image Processor ---
+            const handleImageProcess = useCallback(async (srcImg, str) => {
+                if (!srcImg || !mask48 || !mask96) return;
                 
                 setIsProcessing(true);
-                setFileName(file.name);
-                setError("");
-                setProcessedImage(null);
+                
+                // Small delay to allow UI to update
+                await new Promise(r => setTimeout(r, 50));
 
+                try {
+                    const isLarge = (srcImg.width > 1024 && srcImg.height > 1024);
+                    const activeMask = isLarge ? mask96 : mask48;
+                    
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const resultData = processImage(ctx, srcImg, activeMask, isLarge, str);
+                    ctx.putImageData(resultData, 0, 0);
+                    
+                    setProcessedImageSrc(canvas.toDataURL('image/png'));
+                } catch (err) {
+                    console.error(err);
+                    setError("Processing failed. Format not supported.");
+                } finally {
+                    setIsProcessing(false);
+                }
+            }, [mask48, mask96]);
+
+            // --- File Handler ---
+            const handleDrop = (file) => {
+                if (!file) return;
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        // Delay for scanner animation
-                        setTimeout(() => {
-                            try {
-                                const isLarge = (img.width > 1024 && img.height > 1024);
-                                const activeMask = isLarge ? mask96 : mask48;
-                                setImgDimensions({ w: img.width, h: img.height });
-
-                                const canvas = document.createElement('canvas');
-                                const ctx = canvas.getContext('2d');
-                                const resultData = removeWatermark(ctx, img, activeMask, isLarge);
-                                
-                                ctx.putImageData(resultData, 0, 0);
-                                setProcessedImage(canvas.toDataURL('image/png'));
-                            } catch (err) {
-                                setError("Image processing failed.");
-                            } finally {
-                                setIsProcessing(false);
-                            }
-                        }, 1200); 
+                        setOriginalFile(file);
+                        setOriginalImageSrc(e.target.result);
+                        setDimensions({ w: img.width, h: img.height });
+                        setZoom(1);
+                        setPan({x:0, y:0});
+                        setStrength(1.0);
+                        
+                        // Initial Process
+                        handleImageProcess(img, 1.0);
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             };
 
+            // --- Re-process when slider changes ---
+            // Debounce the slider to prevent lagging
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    if (originalImageSrc && !isProcessing) {
+                        const img = new Image();
+                        img.src = originalImageSrc;
+                        img.onload = () => handleImageProcess(img, strength);
+                    }
+                }, 300);
+                return () => clearTimeout(timer);
+            }, [strength]);
+
+            // --- Shortcuts ---
+            useEffect(() => {
+                const handleKey = (e) => {
+                    if (e.key === 'Escape') {
+                         setOriginalFile(null);
+                         setOriginalImageSrc(null);
+                         setProcessedImageSrc(null);
+                    }
+                    if (e.key === '=' || e.key === '+') setZoom(z => Math.min(z + 0.5, 4));
+                    if (e.key === '-') setZoom(z => Math.max(z - 0.5, 0.5));
+                };
+                window.addEventListener('keydown', handleKey);
+                return () => window.removeEventListener('keydown', handleKey);
+            }, []);
+
+            // --- Render Logic ---
             return (
-                <div className="flex flex-col min-h-screen">
-                    <Header />
-
-                    <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-8">
-                        
-                        {/* Hero Text */}
-                        <div className="text-center mb-8 sm:mb-12 max-w-2xl mx-auto animate-in slide-in-from-bottom-5 fade-in duration-700">
-                            <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4 tracking-tight">
-                                Professional Image<br/>
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
-                                    Restoration & Cleanup
-                                </span>
-                            </h1>
-                            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-                                Advanced reverse-alpha composition engine. Restore original pixel data securely in your browser.
-                            </p>
-                        </div>
-
-                        {/* Main Card */}
-                        <div className="w-full max-w-5xl glass-panel rounded-3xl p-1 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-500 delay-150">
-                            
-                            {/* Initialization Overlay */}
-                            {isLoadingResources && (
-                                <div className="absolute inset-0 z-50 bg-slate-900/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
-                                    <div className="w-8 h-8 border-2 border-slate-700 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-                                    <h3 className="text-sm font-semibold text-white tracking-wide uppercase">System Initializing</h3>
-                                </div>
-                            )}
-
-                            <div className="bg-slate-950/40 rounded-[1.4rem] p-6 sm:p-8 min-h-[500px] flex flex-col relative overflow-hidden">
-                                
-                                {!processedImage ? (
-                                    <div className="flex-1 flex flex-col justify-center">
-                                        <FileDrop 
-                                            accept="image/*" 
-                                            onDrop={processTarget} 
-                                            disabled={isLoadingResources || isProcessing}
-                                            isProcessing={isProcessing}
-                                            className="w-full h-80 sm:h-96 flex flex-col items-center justify-center border-0 bg-slate-800/20 group hover:bg-slate-800/30 transition-all"
-                                        >
-                                            <div className="relative mb-8 z-20 pointer-events-none">
-                                                <div className="absolute inset-0 bg-indigo-500/10 blur-3xl rounded-full group-hover:bg-indigo-500/20 transition-all duration-500"></div>
-                                                <div className={`relative w-24 h-24 bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-3xl flex items-center justify-center shadow-2xl transition-all duration-300 ${isProcessing ? 'scale-110 border-indigo-500/50' : 'group-hover:scale-105 group-hover:-translate-y-1'}`}>
-                                                    {isProcessing ? (
-                                                        <div className="w-10 h-10 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
-                                                    ) : (
-                                                        <div className="text-indigo-400 group-hover:text-indigo-300 transition-colors">
-                                                            <Icons.Upload />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 text-center z-20 pointer-events-none tracking-tight">
-                                                {isProcessing ? "Analyzing Image Data..." : "Upload Source Image"}
-                                            </h2>
-                                            <p className="text-slate-400 text-sm text-center max-w-xs px-4 leading-relaxed z-20 pointer-events-none">
-                                                {isProcessing 
-                                                    ? "Applying alpha mask reversal..." 
-                                                    : "Drag and drop or click to browse. Supports high-resolution processing."
-                                                }
-                                            </p>
-                                        </FileDrop>
-                                    </div>
-                                ) : (
-                                    <div className="flex-1 flex flex-col animate-in fade-in zoom-in-95 duration-500">
-                                        {/* Success Header */}
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 border border-indigo-500/20">
-                                                    <Icons.Sparkles />
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-bold text-white text-base">Restoration Complete</h3>
-                                                    <p className="text-xs text-slate-400 font-mono mt-0.5">{imgDimensions.w}x{imgDimensions.h}px <span className="text-slate-600 mx-1">/</span> PNG</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-3">
-                                                <button 
-                                                    onClick={() => setProcessedImage(null)}
-                                                    className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-600"
-                                                >
-                                                    <Icons.Refresh />
-                                                    <span>Reset</span>
-                                                </button>
-                                                <a 
-                                                    href={processedImage} 
-                                                    download={`restored_${fileName}`}
-                                                    className="flex-[2] sm:flex-none px-8 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
-                                                >
-                                                    <Icons.Download />
-                                                    <span>Save HD</span>
-                                                </a>
-                                            </div>
-                                        </div>
-
-                                        {/* Preview Area */}
-                                        <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 group shadow-inner min-h-[400px]">
-                                            <div className="absolute inset-0 checkerboard opacity-40"></div>
-                                            <div className="relative w-full h-full flex items-center justify-center p-4 overflow-auto custom-scrollbar">
-                                                <img 
-                                                    src={processedImage} 
-                                                    alt="Cleaned" 
-                                                    className="max-w-full max-h-[60vh] object-contain shadow-2xl rounded-sm" 
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                <div className="flex flex-col h-screen bg-[#020617] text-slate-200 font-sans overflow-hidden">
+                    
+                    {/* TOP BAR */}
+                    <header className="h-16 border-b border-slate-800 bg-[#0f172a]/80 backdrop-blur-md flex items-center justify-between px-6 z-50 shrink-0">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-cyber-500 to-blue-700 rounded-lg flex items-center justify-center shadow-lg shadow-cyber-500/20">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            </div>
+                            <div>
+                                <h1 className="font-bold text-white tracking-tight leading-none">GIMG Cleaner <span className="text-cyber-500">v2.0</span></h1>
+                                <span className="text-[10px] text-slate-500 font-mono">NEURAL REVERSE ENGINE</span>
                             </div>
                         </div>
+                        
+                        <div className="flex items-center gap-4">
+                           {isLoadingResources ? (
+                               <div className="flex items-center gap-2 text-xs text-yellow-500 font-mono">
+                                   <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                                   LOADING MODELS...
+                               </div>
+                           ) : (
+                               <div className="flex items-center gap-2 text-xs text-emerald-400 font-mono">
+                                   <span className="w-2 h-2 bg-emerald-400 rounded-full shadow-[0_0_10px_currentColor]"></span>
+                                   SYSTEM READY
+                               </div>
+                           )}
+                        </div>
+                    </header>
 
-                        {/* Features Grid */}
-                        <div className="w-full max-w-5xl grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 mb-8">
-                            {[
-                                { icon: Icons.Shield, title: "Secure Processing", desc: "Local execution environment." },
-                                { icon: Icons.Zap, title: "Zero Latency", desc: "Instant WebGL rendering." },
-                                { icon: Icons.Sparkles, title: "Lossless Quality", desc: "Bit-exact pixel restoration." }
-                            ].map((feature, i) => (
-                                <div key={i} className="group p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors flex items-start gap-4">
-                                    <div className="p-2.5 rounded-lg bg-slate-800 text-slate-400 group-hover:text-indigo-400 transition-colors">
-                                        <feature.icon />
+                    {/* MAIN WORKSPACE */}
+                    <main className="flex-1 flex overflow-hidden relative">
+                        
+                        {/* LEFT: Toolbar (Only visible when image loaded) */}
+                        {originalImageSrc && (
+                            <div className="w-72 bg-[#0b0f19] border-r border-slate-800 flex flex-col z-20 shrink-0 transition-all duration-300">
+                                <div className="p-6 border-b border-slate-800">
+                                    <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Output Control</h2>
+                                    
+                                    {/* Strength Slider */}
+                                    <div className="mb-6">
+                                        <div className="flex justify-between text-xs mb-2">
+                                            <span className="text-slate-300 flex items-center gap-1"><Icons.Settings /> Clean Strength</span>
+                                            <span className="font-mono text-cyber-500">{strength.toFixed(2)}x</span>
+                                        </div>
+                                        <input 
+                                            type="range" 
+                                            min="0.5" 
+                                            max="1.5" 
+                                            step="0.05" 
+                                            value={strength}
+                                            onChange={(e) => setStrength(parseFloat(e.target.value))}
+                                            className="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                                        />
+                                        <div className="flex justify-between text-[10px] text-slate-600 mt-1 font-mono">
+                                            <span>Gentle</span>
+                                            <span>Aggressive</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-slate-200 mb-1">{feature.title}</h4>
-                                        <p className="text-xs text-slate-500 leading-relaxed">{feature.desc}</p>
+
+                                    {/* Dimensions Info */}
+                                    <div className="bg-slate-800/50 rounded-lg p-3 text-xs font-mono text-slate-400 border border-slate-700/50">
+                                        <div className="flex justify-between mb-1">
+                                            <span>Resolution:</span>
+                                            <span className="text-white">{dimensions.w} x {dimensions.h}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>Format:</span>
+                                            <span className="text-white">PNG (Lossless)</span>
+                                        </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
 
-                        {/* Error Toast */}
-                        {error && (
-                            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 max-w-sm w-[90%] bg-red-500/10 backdrop-blur-xl border border-red-500/50 text-red-200 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-bottom-5 z-50">
-                                <div className="text-red-400"><Icons.Alert /></div>
-                                <span className="text-sm font-medium">{error}</span>
-                                <button onClick={() => setError("")} className="ml-auto text-red-400 hover:text-white">✕</button>
+                                <div className="p-6 mt-auto">
+                                    <button 
+                                        onClick={() => {
+                                            const link = document.createElement('a');
+                                            link.download = `cleaned_${originalFile.name.split('.')[0]}.png`;
+                                            link.href = processedImageSrc;
+                                            link.click();
+                                        }}
+                                        className="w-full py-3 bg-cyber-600 hover:bg-cyber-500 text-white rounded-lg font-semibold shadow-lg shadow-cyber-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                    >
+                                        <Icons.Download /> Save Image
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => {
+                                            setOriginalImageSrc(null);
+                                            setProcessedImageSrc(null);
+                                        }}
+                                        className="w-full mt-3 py-3 bg-transparent border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <Icons.Refresh /> Start Over
+                                    </button>
+                                </div>
                             </div>
                         )}
+
+                        {/* CENTER: Canvas / Drop Zone */}
+                        <div className="flex-1 bg-black relative flex flex-col">
+                            {!originalImageSrc ? (
+                                // DROP ZONE
+                                <div className="absolute inset-0 grid-bg flex items-center justify-center p-6">
+                                    <label className={`
+                                        relative w-full max-w-2xl aspect-video rounded-3xl border-2 border-dashed 
+                                        flex flex-col items-center justify-center cursor-pointer transition-all duration-300 group
+                                        ${isLoadingResources ? 'border-slate-700 opacity-50 pointer-events-none' : 'border-slate-700 hover:border-cyber-500 hover:bg-slate-900/50'}
+                                    `}>
+                                        <input type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files[0] && handleDrop(e.target.files[0])} />
+                                        
+                                        <div className="w-20 h-20 bg-slate-800/50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-2xl border border-slate-700 group-hover:border-cyber-500/50 group-hover:shadow-cyber-500/20">
+                                            <div className="text-slate-400 group-hover:text-cyber-500 transition-colors">
+                                                <Icons.Upload />
+                                            </div>
+                                        </div>
+                                        
+                                        <h2 className="text-2xl font-bold text-white mb-2">Drop Image Here</h2>
+                                        <p className="text-slate-400 text-sm max-w-md text-center">
+                                            Supports Gemini generated images. Algorithm runs locally in your browser. 
+                                            <span className="block mt-2 text-xs text-slate-600 font-mono">JPG • PNG • WEBP</span>
+                                        </p>
+                                    </label>
+                                </div>
+                            ) : (
+                                // EDITOR CANVAS
+                                <>
+                                    {/* Canvas Toolbar */}
+                                    <div className="absolute top-4 left-1/2 -translate-x-1/2 glass-panel rounded-full px-4 py-2 z-30 flex items-center gap-4">
+                                        <button onClick={() => setZoom(z => Math.max(0.2, z - 0.2))} className="p-2 hover:text-cyber-500 transition-colors"><Icons.ZoomOut/></button>
+                                        <span className="font-mono text-xs w-12 text-center">{Math.round(zoom * 100)}%</span>
+                                        <button onClick={() => setZoom(z => Math.min(4, z + 0.2))} className="p-2 hover:text-cyber-500 transition-colors"><Icons.ZoomIn/></button>
+                                        <div className="w-px h-4 bg-slate-700"></div>
+                                        <button onClick={() => { setZoom(1); setPan({x:0,y:0}); }} className="text-xs hover:text-white text-slate-400">Fit</button>
+                                    </div>
+
+                                    {/* Main Viewer */}
+                                    <div className="flex-1 relative overflow-hidden checkerboard cursor-move">
+                                        {processedImageSrc ? (
+                                            <CompareSlider 
+                                                originalSrc={originalImageSrc} 
+                                                processedSrc={processedImageSrc} 
+                                                zoom={zoom}
+                                                pan={pan}
+                                                dimensions={dimensions}
+                                            />
+                                        ) : (
+                                            <div className="absolute inset-0 flex items-center justify-center flex-col bg-black/60 backdrop-blur-sm z-40">
+                                                <div className="w-16 h-1 bg-slate-800 rounded overflow-hidden relative">
+                                                    <div className="absolute inset-0 bg-cyber-500 animate-[scan_1s_ease-in-out_infinite]"></div>
+                                                </div>
+                                                <span className="text-xs font-mono text-cyber-500 mt-4 animate-pulse">PROCESSING_PIXELS...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </main>
 
-                    <Footer />
+                    {/* ERROR TOAST */}
+                    {error && (
+                        <div className="fixed bottom-6 right-6 bg-red-500/10 border border-red-500/50 text-red-200 px-4 py-3 rounded-xl backdrop-blur-md shadow-2xl flex items-center gap-3 animate-bounce z-50">
+                            <span className="font-bold">Error:</span> {error}
+                            <button onClick={() => setError("")} className="ml-2 hover:text-white">✕</button>
+                        </div>
+                    )}
                 </div>
             );
         };
