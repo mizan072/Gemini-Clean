@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GIMG Cleaner Pro | With Calibration</title>
+    <title>GIMG Cleaner Ultimate | Nano Banana 2 Ready</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -11,75 +11,69 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            background-color: #0b0f19;
-            color: #f8fafc;
+            background-color: #09090b; /* zinc-950 */
+            color: #f4f4f5; /* zinc-50 */
             font-family: 'Inter', sans-serif;
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(56, 189, 248, 0.08), transparent 25%),
-                radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.08), transparent 25%);
-            background-attachment: fixed;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
         
         ::-webkit-scrollbar { width: 6px; height: 6px;}
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
         
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .drop-zone {
-            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%23334155' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .drop-zone:hover {
-            background-color: rgba(30, 41, 59, 0.3);
-            border-color: #475569;
-        }
-        .drop-zone.active {
-            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%236366F1' stroke-width='2' stroke-dasharray='12%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
-            background-color: rgba(99, 102, 241, 0.05);
+        .workspace-panel {
+            background: #18181b; /* zinc-900 */
+            border: 1px solid #27272a; /* zinc-800 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
         }
 
         .checkerboard {
-            background-color: #111827;
+            background-color: #09090b;
             background-image: 
-                linear-gradient(45deg, #1f2937 25%, transparent 25%), 
-                linear-gradient(-45deg, #1f2937 25%, transparent 25%), 
-                linear-gradient(45deg, transparent 75%, #1f2937 75%), 
-                linear-gradient(-45deg, transparent 75%, #1f2937 75%);
+                linear-gradient(45deg, #18181b 25%, transparent 25%), 
+                linear-gradient(-45deg, #18181b 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #18181b 75%), 
+                linear-gradient(-45deg, transparent 75%, #18181b 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
+        /* Minimalist Range Sliders */
         input[type=range] {
             -webkit-appearance: none;
+            width: 100%;
             background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 16px; width: 16px;
+            height: 14px; width: 14px;
             border-radius: 50%;
-            background: #818cf8;
+            background: #e4e4e7; /* zinc-200 */
+            border: 2px solid #09090b;
             cursor: pointer;
-            margin-top: -6px;
+            margin-top: -5px;
+            box-shadow: 0 0 0 1px #27272a;
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
         }
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%; height: 4px;
             cursor: pointer;
-            background: #334155;
+            background: #3f3f46; /* zinc-700 */
             border-radius: 2px;
+        }
+        input[type=range]:focus::-webkit-slider-runnable-track {
+            background: #52525b;
         }
     </style>
 </head>
-<body class="antialiased selection:bg-indigo-500/30">
+<body class="antialiased selection:bg-purple-500/30">
     <div id="root" class="flex flex-col min-h-screen"></div>
 
     <script type="text/babel">
@@ -87,173 +81,209 @@
 
         const Icons = {
             Upload: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
-            Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-            Refresh: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>,
-            Settings: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>,
-            Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+            Wand: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg>,
+            Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>,
+            Layers: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
         };
 
+        // --- ALGORITHM 1: Smart Patch (Inverse Distance Weighting Interpolation) ---
+        // This completely ignores alpha math. It takes pixels from outside the box
+        // and seamlessly blends them inwards. 100% immune to watermark updates.
+        const applySmartPatch = (data, width, height, startX, startY, wmSizeX, wmSizeY) => {
+            const origData = new Uint8ClampedArray(data);
+            const p = 2; // Power curve for blending (2 provides sharp but smooth edges)
+
+            for (let row = 0; row < wmSizeY; row++) {
+                for (let col = 0; col < wmSizeX; col++) {
+                    const x = startX + col;
+                    const y = startY + row;
+
+                    if (x >= width || y >= height || x < 0 || y < 0) continue;
+
+                    // Boundaries
+                    const leftX = Math.max(0, startX - 1);
+                    const rightX = Math.min(width - 1, startX + wmSizeX);
+                    const topY = Math.max(0, startY - 1);
+                    const bottomY = Math.min(height - 1, startY + wmSizeY);
+
+                    // Distances to boundaries
+                    const dLeft = col + 1;
+                    const dRight = wmSizeX - col;
+                    const dTop = row + 1;
+                    const dBottom = wmSizeY - row;
+
+                    // Weights (inverse distance)
+                    const wLeft = (startX > 0) ? 1 / Math.pow(dLeft, p) : 0;
+                    const wRight = (startX + wmSizeX < width) ? 1 / Math.pow(dRight, p) : 0;
+                    const wTop = (startY > 0) ? 1 / Math.pow(dTop, p) : 0;
+                    const wBottom = (startY + wmSizeY < height) ? 1 / Math.pow(dBottom, p) : 0;
+
+                    const totalWeight = wLeft + wRight + wTop + wBottom;
+                    if (totalWeight === 0) continue; // Edge case fail-safe
+
+                    const idx = (y * width + x) * 4;
+                    const idxLeft = (y * width + leftX) * 4;
+                    const idxRight = (y * width + rightX) * 4;
+                    const idxTop = (topY * width + x) * 4;
+                    const idxBottom = (bottomY * width + x) * 4;
+
+                    // Blend RGB
+                    for (let c = 0; c < 3; c++) {
+                        const val = (
+                            (wLeft > 0 ? origData[idxLeft + c] * wLeft : 0) +
+                            (wRight > 0 ? origData[idxRight + c] * wRight : 0) +
+                            (wTop > 0 ? origData[idxTop + c] * wTop : 0) +
+                            (wBottom > 0 ? origData[idxBottom + c] * wBottom : 0)
+                        ) / totalWeight;
+                        data[idx + c] = Math.round(val);
+                    }
+                }
+            }
+        };
+
+        // --- ALGORITHM 2: Legacy Reverse Alpha ---
         const calculateAlphaMap = (imgData) => {
             const { width, height, data } = imgData;
             const alphaMap = new Float32Array(width * height);
             for (let i = 0; i < alphaMap.length; i++) {
-                const idx = i * 4;
-                const val = Math.max(data[idx], data[idx + 1], data[idx + 2]);
+                const val = Math.max(data[i*4], data[i*4+1], data[i*4+2]);
                 alphaMap[i] = val / 255.0;
             }
             return alphaMap;
         };
 
-        const removeWatermark = (ctx, targetImg, alphaMap, wmSize, marginX, marginY, debugMode) => {
-            const width = targetImg.width;
-            const height = targetImg.height;
-            
-            ctx.canvas.width = width;
-            ctx.canvas.height = height;
-            ctx.drawImage(targetImg, 0, 0);
-
-            const imageData = ctx.getImageData(0, 0, width, height);
-            const data = imageData.data;
-
-            const startX = width - wmSize - marginX;
-            const startY = height - wmSize - marginY;
-
-            if (startX < 0 || startY < 0) return imageData;
-
+        const applyLegacyAlpha = (data, width, height, startX, startY, wmSizeX, alphaMap) => {
             const LOGO_VALUE = 255;
-            const MAX_ALPHA = 0.99;
-            const ALPHA_THRESHOLD = 0.002;
+            for (let row = 0; row < wmSizeX; row++) {
+                for (let col = 0; col < wmSizeX; col++) {
+                    const x = startX + col;
+                    const y = startY + row;
+                    if (x >= width || y >= height) continue;
 
-            for (let row = 0; row < wmSize; row++) {
-                for (let col = 0; col < wmSize; col++) {
-                    const globalX = startX + col;
-                    const globalY = startY + row;
+                    let alpha = alphaMap[row * wmSizeX + col];
+                    if (alpha < 0.002) continue;
+                    alpha = Math.min(alpha, 0.99);
 
-                    if (globalX >= width || globalY >= height) continue;
-
-                    const pixelIdx = (globalY * width + globalX) * 4;
-                    const maskIdx = row * wmSize + col;
-                    
-                    let alpha = alphaMap[maskIdx];
-
-                    if (debugMode) {
-                        // In debug mode, tint the mask area red so user can see alignment
-                        if (row === 0 || row === wmSize - 1 || col === 0 || col === wmSize - 1) {
-                            data[pixelIdx] = 255; data[pixelIdx + 1] = 0; data[pixelIdx + 2] = 0; // Red Border
-                        } else if (alpha > ALPHA_THRESHOLD) {
-                            data[pixelIdx] = 255; // Red tint on actual mask
-                            data[pixelIdx + 3] = 200; // Semi-transparent
-                        }
-                        continue;
-                    }
-
-                    if (alpha < ALPHA_THRESHOLD) continue;
-                    alpha = Math.min(alpha, MAX_ALPHA);
-
-                    const oneMinusAlpha = 1.0 - alpha;
-
+                    const idx = (y * width + x) * 4;
                     for (let c = 0; c < 3; c++) {
-                        const watermarkedVal = data[pixelIdx + c];
-                        let originalVal = (watermarkedVal - (alpha * LOGO_VALUE)) / oneMinusAlpha;
-                        originalVal = Math.max(0, Math.min(255, Math.round(originalVal)));
-                        data[pixelIdx + c] = originalVal;
+                        let originalVal = (data[idx + c] - (alpha * LOGO_VALUE)) / (1.0 - alpha);
+                        data[idx + c] = Math.max(0, Math.min(255, Math.round(originalVal)));
                     }
                 }
             }
-            return imageData;
         };
 
+
         const App = () => {
-            const [mask48, setMask48] = useState(null);
-            const [mask96, setMask96] = useState(null);
             const [sourceImage, setSourceImage] = useState(null);
             const [processedImage, setProcessedImage] = useState(null);
+            const [fileName, setFileName] = useState("");
             
-            // Configuration State
-            const [isLargeMask, setIsLargeMask] = useState(true);
-            const [marginX, setMarginX] = useState(64);
-            const [marginY, setMarginY] = useState(64);
+            // Engine State
+            const [algorithm, setAlgorithm] = useState('smart'); // 'smart' or 'legacy'
             const [debugMode, setDebugMode] = useState(false);
             
-            const [fileName, setFileName] = useState("");
-            const [error, setError] = useState("");
+            // Bounding Box State
+            const [marginX, setMarginX] = useState(32);
+            const [marginY, setMarginY] = useState(32);
+            const [boxWidth, setBoxWidth] = useState(80);
+            const [boxHeight, setBoxHeight] = useState(80);
+            
+            // Legacy Masks
+            const [legacyMasks, setLegacyMasks] = useState({ m48: null, m96: null });
 
             useEffect(() => {
                 const loadMasks = async () => {
-                    try {
-                        const loadImg = (url, size) => new Promise((resolve, reject) => {
-                            const img = new Image();
-                            img.crossOrigin = "Anonymous";
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                canvas.width = size;
-                                canvas.height = size;
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0);
-                                resolve(calculateAlphaMap(ctx.getImageData(0, 0, size, size)));
-                            };
-                            img.onerror = () => reject();
-                            img.src = url;
-                        });
-
-                        const [m48, m96] = await Promise.all([
-                            loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_48.png', 48),
-                            loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_96.png', 96)
-                        ]);
-                        setMask48(m48); setMask96(m96);
-                    } catch (err) {
-                        setError("Failed to load masks from GitHub.");
-                    }
+                    const loadImg = (url, size) => new Promise((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = size; canvas.height = size;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            resolve(calculateAlphaMap(ctx.getImageData(0, 0, size, size)));
+                        };
+                        img.onerror = () => resolve(null);
+                        img.src = url;
+                    });
+                    const [m48, m96] = await Promise.all([
+                        loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_48.png', 48),
+                        loadImg('https://cdn.jsdelivr.net/gh/journey-ad/gemini-watermark-remover@main/src/assets/bg_96.png', 96)
+                    ]);
+                    setLegacyMasks({ m48, m96 });
                 };
                 loadMasks();
             }, []);
 
-            // The main processing function wrapped in useCallback so it updates when sliders move
             const processImage = useCallback(() => {
-                if (!sourceImage || !mask48 || !mask96) return;
-
-                const activeMask = isLargeMask ? mask96 : mask48;
-                const wmSize = isLargeMask ? 96 : 48;
+                if (!sourceImage) return;
 
                 const canvas = document.createElement('canvas');
+                canvas.width = sourceImage.width;
+                canvas.height = sourceImage.height;
                 const ctx = canvas.getContext('2d');
-                
-                try {
-                    const resultData = removeWatermark(ctx, sourceImage, activeMask, wmSize, marginX, marginY, debugMode);
-                    ctx.putImageData(resultData, 0, 0);
-                    setProcessedImage(canvas.toDataURL('image/png'));
-                } catch (err) {
-                    setError("Processing error.");
-                }
-            }, [sourceImage, mask48, mask96, isLargeMask, marginX, marginY, debugMode]);
+                ctx.drawImage(sourceImage, 0, 0);
 
-            // Re-process automatically when settings change
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
+
+                // For legacy, we force the box to be square based on the mask
+                const actualBoxWidth = algorithm === 'legacy' ? (boxWidth >= 72 ? 96 : 48) : boxWidth;
+                const actualBoxHeight = algorithm === 'legacy' ? actualBoxWidth : boxHeight;
+
+                const startX = canvas.width - actualBoxWidth - marginX;
+                const startY = canvas.height - actualBoxHeight - marginY;
+
+                if (debugMode) {
+                    // Draw red bounding box
+                    for (let row = 0; row < actualBoxHeight; row++) {
+                        for (let col = 0; col < actualBoxWidth; col++) {
+                            const x = startX + col;
+                            const y = startY + row;
+                            if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) continue;
+                            
+                            const idx = (y * canvas.width + x) * 4;
+                            if (row === 0 || row === actualBoxHeight - 1 || col === 0 || col === actualBoxWidth - 1) {
+                                data[idx] = 255; data[idx+1] = 0; data[idx+2] = 0; // Red border
+                            } else {
+                                data[idx] = Math.min(255, data[idx] + 50); // Red tint
+                                data[idx+1] = Math.max(0, data[idx+1] - 50);
+                                data[idx+2] = Math.max(0, data[idx+2] - 50);
+                            }
+                        }
+                    }
+                } else {
+                    if (algorithm === 'smart') {
+                        applySmartPatch(data, canvas.width, canvas.height, startX, startY, actualBoxWidth, actualBoxHeight);
+                    } else if (algorithm === 'legacy') {
+                        const mask = actualBoxWidth === 96 ? legacyMasks.m96 : legacyMasks.m48;
+                        if (mask) applyLegacyAlpha(data, canvas.width, canvas.height, startX, startY, actualBoxWidth, mask);
+                    }
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+                setProcessedImage(canvas.toDataURL('image/png'));
+            }, [sourceImage, algorithm, debugMode, marginX, marginY, boxWidth, boxHeight, legacyMasks]);
+
             useEffect(() => {
                 if (sourceImage) processImage();
             }, [processImage, sourceImage]);
 
-            const handleDrop = (e) => {
-                e.preventDefault();
-                if (e.dataTransfer?.files?.length > 0) handleFile(e.dataTransfer.files[0]);
-            };
-
             const handleFile = (file) => {
-                if (!file.type.startsWith('image/')) {
-                    setError("Please upload an image file.");
-                    return;
-                }
+                if (!file || !file.type.startsWith('image/')) return;
                 setFileName(file.name);
-                setError("");
-                
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        // FIXED LOGIC: Checks if either dimension is >= 1024 (Supports landscape/portrait Gemini images)
-                        const needsLarge = Math.max(img.width, img.height) >= 1024;
-                        setIsLargeMask(needsLarge);
-                        setMarginX(needsLarge ? 64 : 32);
-                        setMarginY(needsLarge ? 64 : 32);
+                        // Auto-configure margins based on image size (common Gemini formats)
+                        const isHuge = Math.max(img.width, img.height) >= 1024;
+                        setMarginX(isHuge ? 64 : 32);
+                        setMarginY(isHuge ? 64 : 32);
+                        setBoxWidth(isHuge ? 96 : 64);
+                        setBoxHeight(isHuge ? 96 : 64);
                         setSourceImage(img);
                     };
                     img.src = e.target.result;
@@ -263,112 +293,162 @@
 
             return (
                 <div className="flex flex-col min-h-screen">
-                    <header className="glass-panel sticky top-0 z-50 w-full border-b border-white/5">
-                        <div className="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <span className="font-bold text-white text-lg">GIMG Pro</span>
+                    {/* Minimalist Header */}
+                    <header className="border-b border-zinc-800 bg-[#09090b] sticky top-0 z-50">
+                        <div className="max-w-[1600px] mx-auto px-4 lg:px-6 h-14 flex justify-between items-center">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="text-zinc-100 hidden sm:block">
+                                    <Icons.Layers />
+                                </div>
+                                <span className="font-semibold text-zinc-100 tracking-tight text-sm">GIMG Cleaner Pro</span>
                             </div>
-                            <span className="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30">Calibration Mode</span>
+                            <div className="flex items-center gap-4">
+                                <span className="flex items-center gap-2 text-[10px] sm:text-xs font-medium text-zinc-400">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Engine v2.0
+                                </span>
+                            </div>
                         </div>
                     </header>
 
-                    <main className="flex-grow flex flex-col items-center justify-center p-4">
-                        <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-6">
+                    <main className="flex-grow flex flex-col lg:flex-row gap-4 lg:gap-6 p-4 lg:p-6 max-w-[1600px] mx-auto w-full">
+                        
+                        {/* LEFT: Preview Canvas */}
+                        <div className="flex-[3] workspace-panel rounded-xl flex flex-col min-h-[50vh] lg:min-h-[70vh] relative overflow-hidden">
+                            {!sourceImage ? (
+                                <div 
+                                    onDragOver={(e) => e.preventDefault()}
+                                    onDrop={(e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
+                                    onClick={() => document.getElementById('upload').click()}
+                                    className="absolute inset-4 lg:inset-6 border-2 border-dashed border-zinc-700 hover:border-blue-500 bg-zinc-900/50 hover:bg-blue-500/5 transition-all rounded-xl flex flex-col items-center justify-center cursor-pointer group p-4 text-center"
+                                >
+                                    <input id="upload" type="file" className="hidden" accept="image/*" onChange={(e) => handleFile(e.target.files[0])} />
+                                    <div className="w-12 h-12 lg:w-16 lg:h-16 bg-zinc-800 rounded-full flex items-center justify-center text-zinc-400 group-hover:text-blue-500 group-hover:scale-105 transition-all duration-300 mb-3 lg:mb-4 shadow-sm">
+                                        <Icons.Upload />
+                                    </div>
+                                    <h3 className="text-sm lg:text-base font-semibold text-zinc-200 mb-1">Import Image</h3>
+                                    <p className="text-zinc-500 text-xs lg:text-sm">Drag and drop or tap to browse</p>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col h-full w-full">
+                                    <div className="p-3 lg:px-4 lg:h-12 border-b border-zinc-800 bg-zinc-900 flex flex-col sm:flex-row justify-between items-start sm:items-center shrink-0 gap-3 sm:gap-0">
+                                        <div className="flex items-center gap-2 lg:gap-3 w-full sm:w-auto overflow-hidden">
+                                            <span className="text-[10px] lg:text-xs font-mono text-zinc-400 bg-zinc-800 px-2 py-1 rounded shrink-0">
+                                                {sourceImage.width} x {sourceImage.height}
+                                            </span>
+                                            <span className="text-[10px] lg:text-xs text-zinc-500 truncate">{fileName}</span>
+                                        </div>
+                                        <div className="flex gap-2 w-full sm:w-auto justify-end">
+                                            <button onClick={() => setSourceImage(null)} className="flex-1 sm:flex-none justify-center flex items-center px-3 py-1.5 text-[11px] lg:text-xs font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 rounded transition-colors">
+                                                Discard
+                                            </button>
+                                            <a href={processedImage} download={`cleaned_${fileName}`} className="flex-1 sm:flex-none justify-center px-3 py-1.5 bg-zinc-100 hover:bg-white text-zinc-900 rounded text-[11px] lg:text-xs font-semibold shadow-sm transition-colors flex items-center gap-1.5">
+                                                <Icons.Download /> Export
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 checkerboard relative overflow-auto flex items-center justify-center p-4 lg:p-8">
+                                        {processedImage && (
+                                            <img src={processedImage} alt="Processed" className="max-w-full max-h-full object-contain shadow-2xl rounded ring-1 ring-zinc-800" />
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* RIGHT: Inspector / Properties Panel */}
+                        <div className={`w-full lg:flex-[1] lg:min-w-[320px] lg:max-w-[400px] flex flex-col gap-4 lg:gap-6 transition-opacity duration-300 ${!sourceImage ? 'opacity-30 pointer-events-none' : 'opacity-100'}`}>
                             
-                            {/* Left Column: Image Area */}
-                            <div className="flex-[2] glass-panel rounded-2xl p-4 flex flex-col min-h-[500px]">
-                                {!sourceImage ? (
-                                    <div 
-                                        onDragOver={(e) => e.preventDefault()}
-                                        onDrop={handleDrop}
-                                        onClick={() => document.getElementById('fileUpload').click()}
-                                        className="flex-1 drop-zone rounded-xl flex flex-col items-center justify-center cursor-pointer group"
+                            {/* Algorithm Selector */}
+                            <div className="workspace-panel rounded-xl p-4 lg:p-5">
+                                <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Processing Engine</h3>
+                                <div className="grid grid-cols-1 gap-3">
+                                    <button 
+                                        onClick={() => setAlgorithm('smart')}
+                                        className={`p-3 rounded-lg border text-left transition-all ${algorithm === 'smart' ? 'bg-blue-500/10 border-blue-500/50 ring-1 ring-blue-500/20' : 'bg-zinc-800/30 border-zinc-800 hover:bg-zinc-800/80 hover:border-zinc-700'}`}
                                     >
-                                        <input id="fileUpload" type="file" className="hidden" accept="image/*" onChange={(e) => e.target.files.length && handleFile(e.target.files[0])} />
-                                        <div className="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 group-hover:text-indigo-400 group-hover:scale-110 transition-all mb-4">
-                                            <Icons.Upload />
+                                        <div className={`text-sm font-semibold mb-1 flex items-center justify-between ${algorithm === 'smart' ? 'text-blue-400' : 'text-zinc-300'}`}>
+                                            Content-Aware Fill
+                                            {algorithm === 'smart' && <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>}
                                         </div>
-                                        <p className="text-white font-medium">Upload Image to Calibrate</p>
-                                    </div>
-                                ) : (
-                                    <div className="flex-1 flex flex-col">
-                                        <div className="flex justify-between items-center mb-4">
-                                            <h3 className="text-sm font-medium text-slate-300">Live Preview ({sourceImage.width}x{sourceImage.height})</h3>
-                                            <div className="flex gap-2">
-                                                <button onClick={() => setSourceImage(null)} className="px-3 py-1.5 bg-slate-800 rounded-lg text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2">
-                                                    <Icons.Refresh /> Reset
-                                                </button>
-                                                <a href={processedImage} download={`clean_${fileName}`} className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-sm font-medium text-white transition-colors flex items-center gap-2">
-                                                    <Icons.Download /> Save Image
-                                                </a>
-                                            </div>
+                                        <div className="text-[11px] text-zinc-500 leading-relaxed">Smart interpolation. Resilient to model updates.</div>
+                                    </button>
+                                    
+                                    <button 
+                                        onClick={() => setAlgorithm('legacy')}
+                                        className={`p-3 rounded-lg border text-left transition-all ${algorithm === 'legacy' ? 'bg-blue-500/10 border-blue-500/50 ring-1 ring-blue-500/20' : 'bg-zinc-800/30 border-zinc-800 hover:bg-zinc-800/80 hover:border-zinc-700'}`}
+                                    >
+                                        <div className={`text-sm font-semibold mb-1 flex items-center justify-between ${algorithm === 'legacy' ? 'text-blue-400' : 'text-zinc-300'}`}>
+                                            Legacy Alpha Math
+                                            {algorithm === 'legacy' && <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>}
                                         </div>
-                                        <div className="flex-1 relative checkerboard rounded-xl border border-slate-700 overflow-hidden flex items-center justify-center p-4">
-                                            {processedImage && (
-                                                <img src={processedImage} className="max-w-full max-h-[60vh] object-contain shadow-2xl" alt="Preview" />
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                                        <div className="text-[11px] text-zinc-500 leading-relaxed">Hardcoded reverse math for older generation models.</div>
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* Right Column: Calibration Controls */}
-                            <div className={`flex-1 glass-panel rounded-2xl p-6 transition-opacity duration-300 ${!sourceImage ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                                <div className="flex items-center gap-2 mb-6">
-                                    <Icons.Settings />
-                                    <h2 className="text-lg font-bold text-white">Calibration Tools</h2>
+                            {/* Calibration Tools */}
+                            <div className="workspace-panel rounded-xl p-5 flex-1">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Target Calibration</h3>
+                                    
+                                    <button 
+                                        onClick={() => setDebugMode(!debugMode)}
+                                        className={`px-2.5 py-1 rounded text-[11px] font-semibold flex items-center gap-1.5 transition-colors ${debugMode ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-700'}`}
+                                    >
+                                        <Icons.Eye /> {debugMode ? 'Hide Box' : 'Show Box'}
+                                    </button>
                                 </div>
 
-                                <p className="text-xs text-slate-400 mb-6">Google frequently changes watermark padding. Use these sliders to align the mask perfectly over the watermark.</p>
+                                {debugMode && (
+                                    <div className="mb-6 p-3 bg-red-500/5 border border-red-500/10 rounded-lg text-[11px] text-red-300/80 leading-relaxed">
+                                        Align the bounding box perfectly over the watermark area.
+                                    </div>
+                                )}
 
-                                {/* Debug Toggle */}
-                                <div className="mb-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                                    <label className="flex items-center justify-between cursor-pointer">
-                                        <div className="flex items-center gap-2">
-                                            <Icons.Eye />
-                                            <span className="text-sm font-medium text-slate-200">Show Debug Mask</span>
-                                        </div>
-                                        <div className="relative">
-                                            <input type="checkbox" className="sr-only" checked={debugMode} onChange={(e) => setDebugMode(e.target.checked)} />
-                                            <div className={`block w-10 h-6 rounded-full transition-colors ${debugMode ? 'bg-indigo-500' : 'bg-slate-600'}`}></div>
-                                            <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${debugMode ? 'translate-x-4' : ''}`}></div>
-                                        </div>
-                                    </label>
-                                    {debugMode && <p className="text-xs text-indigo-300 mt-2">Adjust sliders until the red box perfectly covers the watermark.</p>}
-                                </div>
-
-                                {/* Controls */}
                                 <div className="space-y-6">
-                                    <div>
-                                        <div className="flex justify-between mb-2">
-                                            <label className="text-sm text-slate-300">Right Margin (X Offset)</label>
-                                            <span className="text-sm text-indigo-400 font-mono">{marginX}px</span>
+                                    {/* Offset Controls */}
+                                    <div className="space-y-5">
+                                        <div>
+                                            <div className="flex justify-between items-center mb-2.5">
+                                                <label className="text-[11px] font-semibold text-zinc-400">X Offset (Right)</label>
+                                                <span className="text-[11px] font-mono text-zinc-300 bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded shadow-inner">{marginX}px</span>
+                                            </div>
+                                            <input type="range" min="0" max="150" value={marginX} onChange={(e) => setMarginX(Number(e.target.value))} />
                                         </div>
-                                        <input type="range" min="0" max="150" value={marginX} onChange={(e) => setMarginX(Number(e.target.value))} className="w-full" />
+                                        
+                                        <div>
+                                            <div className="flex justify-between items-center mb-2.5">
+                                                <label className="text-[11px] font-semibold text-zinc-400">Y Offset (Bottom)</label>
+                                                <span className="text-[11px] font-mono text-zinc-300 bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded shadow-inner">{marginY}px</span>
+                                            </div>
+                                            <input type="range" min="0" max="150" value={marginY} onChange={(e) => setMarginY(Number(e.target.value))} />
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <div className="flex justify-between mb-2">
-                                            <label className="text-sm text-slate-300">Bottom Margin (Y Offset)</label>
-                                            <span className="text-sm text-indigo-400 font-mono">{marginY}px</span>
+                                    {/* Size Controls */}
+                                    <div className="pt-5 border-t border-zinc-800 space-y-5">
+                                        <div>
+                                            <div className="flex justify-between items-center mb-2.5">
+                                                <label className="text-[11px] font-semibold text-zinc-400">Target Width</label>
+                                                <span className="text-[11px] font-mono text-zinc-300 bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded shadow-inner">{algorithm==='legacy' ? (boxWidth >= 72 ? 96: 48) : boxWidth}px</span>
+                                            </div>
+                                            <input type="range" min="20" max="150" value={boxWidth} onChange={(e) => setBoxWidth(Number(e.target.value))} />
                                         </div>
-                                        <input type="range" min="0" max="150" value={marginY} onChange={(e) => setMarginY(Number(e.target.value))} className="w-full" />
-                                    </div>
 
-                                    <div>
-                                        <label className="text-sm text-slate-300 mb-2 block">Mask Size</label>
-                                        <div className="flex bg-slate-800 rounded-lg p-1">
-                                            <button onClick={() => setIsLargeMask(false)} className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${!isLargeMask ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white'}`}>Small (48px)</button>
-                                            <button onClick={() => setIsLargeMask(true)} className={`flex-1 py-2 rounded-md text-sm font-medium transition-all ${isLargeMask ? 'bg-indigo-500 text-white' : 'text-slate-400 hover:text-white'}`}>Large (96px)</button>
-                                        </div>
+                                        {algorithm === 'smart' && (
+                                            <div>
+                                                <div className="flex justify-between items-center mb-2.5">
+                                                    <label className="text-[11px] font-semibold text-zinc-400">Target Height</label>
+                                                    <span className="text-[11px] font-mono text-zinc-300 bg-zinc-800 border border-zinc-700 px-1.5 py-0.5 rounded shadow-inner">{boxHeight}px</span>
+                                                </div>
+                                                <input type="range" min="20" max="150" value={boxHeight} onChange={(e) => setBoxHeight(Number(e.target.value))} />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {error && (
-                            <div className="mt-4 bg-red-500/20 border border-red-500 text-red-200 px-4 py-2 rounded-lg text-sm">{error}</div>
-                        )}
                     </main>
                 </div>
             );
