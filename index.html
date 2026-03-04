@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>GIMG Cleaner Pro | Professional Image Restoration</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -19,11 +19,13 @@
             --accent-glow: rgba(99, 102, 241, 0.2);
         }
 
-        body {
+        /* Prevent pull-to-refresh on mobile devices */
+        html, body {
+            height: 100%;
+            overscroll-behavior-y: none;
             background-color: var(--bg-base);
             color: #f8fafc;
             font-family: 'Inter', sans-serif;
-            min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
         
@@ -35,15 +37,6 @@
         
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Panel Styling */
-        .pro-panel {
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.3);
-            border-radius: 16px;
-        }
-
-        /* Checkerboard for Transparency Preview */
         .checkerboard {
             background-color: #0b0c0f;
             background-image: 
@@ -55,11 +48,11 @@
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
-        /* Pro Range Sliders */
+        /* Pro Range Sliders - Mobile Optimized */
         .slider-container {
             position: relative;
             width: 100%;
-            height: 24px;
+            height: 32px; /* Increased touch area */
             display: flex;
             align-items: center;
         }
@@ -71,33 +64,31 @@
             z-index: 2;
             margin: 0;
             cursor: pointer;
+            touch-action: none; /* CRITICAL: Prevents page scroll when dragging slider on mobile */
         }
         input[type=range]:focus { outline: none; }
         
         /* Thumb */
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            height: 18px; width: 18px;
+            height: 24px; width: 24px; /* Larger for fat fingers */
             border-radius: 50%;
             background: #fff;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4), 0 0 0 2px var(--bg-panel);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 2px var(--bg-panel);
             transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-top: -7px; /* Centers thumb on the track */
+            margin-top: -10px; 
         }
         input[type=range]::-webkit-slider-thumb:active { transform: scale(1.15); }
 
         /* Track */
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px;
+            width: 100%; height: 6px;
             background: #2e333d;
-            border-radius: 2px;
+            border-radius: 3px;
         }
-        
-        /* Slider Fill logic is handled via inline styles in React */
 
-        /* Switch Toggle */
         .toggle-switch {
-            width: 36px; height: 20px;
+            width: 40px; height: 24px;
             background: #2e333d;
             border-radius: 20px;
             position: relative;
@@ -108,8 +99,8 @@
         .toggle-switch::after {
             content: '';
             position: absolute;
-            top: 2px; left: 2px;
-            width: 16px; height: 16px;
+            top: 3px; left: 3px;
+            width: 18px; height: 18px;
             background: white;
             border-radius: 50%;
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -117,12 +108,14 @@
         }
         .toggle-switch.active::after { transform: translateX(16px); }
 
-        /* Dropzone animations */
         .dropzone { transition: all 0.2s ease-in-out; }
         .dropzone:hover, .dropzone.active {
             border-color: var(--accent-primary);
             background-color: var(--accent-glow);
         }
+
+        /* Fix bottom spacing for iPhones with safe area notch/bar */
+        .safe-pb { padding-bottom: env(safe-area-inset-bottom, 20px); }
     </style>
 </head>
 <body>
@@ -131,7 +124,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // --- BEAUTIFUL COLOR ICONS ---
         const Icons = {
             Logo: () => (
                 <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -185,22 +177,20 @@
             )
         };
 
-        // --- SLIDER COMPONENT ---
         const ProSlider = ({ label, value, min, max, onChange, unit = "px", color = "#6366f1" }) => {
             const percentage = ((value - min) / (max - min)) * 100;
-            
             return (
                 <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center">
-                        <label className="text-xs font-semibold text-slate-300">{label}</label>
-                        <div className="bg-[#1e2128] border border-white/5 rounded pl-2 pr-1 py-0.5 flex items-center gap-1">
+                        <label className="text-sm font-semibold text-slate-300">{label}</label>
+                        <div className="bg-[#1e2128] border border-white/5 rounded pl-2 pr-1 py-1 flex items-center gap-1 shadow-inner">
                             <span className="text-xs font-mono text-white min-w-[3ch] text-right">{value}</span>
                             <span className="text-[10px] text-slate-500">{unit}</span>
                         </div>
                     </div>
                     <div className="slider-container">
                         <div 
-                            className="absolute h-1 rounded-full pointer-events-none" 
+                            className="absolute h-1.5 rounded-full pointer-events-none" 
                             style={{ width: `${percentage}%`, backgroundColor: color, zIndex: 1 }}
                         />
                         <input 
@@ -208,6 +198,7 @@
                             min={min} 
                             max={max} 
                             value={value} 
+                            onInput={(e) => onChange(Number(e.target.value))}
                             onChange={(e) => onChange(Number(e.target.value))}
                         />
                     </div>
@@ -215,7 +206,6 @@
             );
         };
 
-        // --- ALGORITHMS ---
         const applySmartPatch = (data, width, height, startX, startY, wmSizeX, wmSizeY) => {
             const origData = new Uint8ClampedArray(data);
             const p = 2; 
@@ -305,6 +295,9 @@
             
             const [legacyMasks, setLegacyMasks] = useState({ m48: null, m96: null });
             const [isDragging, setIsDragging] = useState(false);
+            
+            // To prevent async race conditions when creating blobs
+            const renderId = useRef(0);
 
             useEffect(() => {
                 const loadMasks = async () => {
@@ -333,6 +326,7 @@
             const processImage = useCallback(() => {
                 if (!sourceImage) return;
 
+                const currentRender = ++renderId.current;
                 const canvas = document.createElement('canvas');
                 canvas.width = sourceImage.width;
                 canvas.height = sourceImage.height;
@@ -375,7 +369,17 @@
                 }
 
                 ctx.putImageData(imageData, 0, 0);
-                setProcessedImage(canvas.toDataURL('image/png'));
+
+                // Use toBlob instead of toDataURL to prevent Memory Crashes on Mobile devices
+                canvas.toBlob((blob) => {
+                    if (currentRender !== renderId.current) return; // Prevent race conditions
+                    const url = URL.createObjectURL(blob);
+                    setProcessedImage(prev => {
+                        if (prev) URL.revokeObjectURL(prev); // Clean up memory
+                        return url;
+                    });
+                }, 'image/png');
+
             }, [sourceImage, algorithm, debugMode, marginX, marginY, boxWidth, boxHeight, legacyMasks]);
 
             useEffect(() => {
@@ -393,8 +397,8 @@
                         const isHuge = Math.max(img.width, img.height) >= 1024;
                         setMarginX(isHuge ? 64 : 32);
                         setMarginY(isHuge ? 64 : 32);
-                        setBoxWidth(isHuge ? 96 : 64);
-                        setBoxHeight(isHuge ? 96 : 64);
+                        setBoxWidth(isHuge ? 96 : 48);
+                        setBoxHeight(isHuge ? 96 : 48);
                         setSourceImage(img);
                     };
                     img.src = e.target.result;
@@ -402,8 +406,14 @@
                 reader.readAsDataURL(file);
             };
 
+            const resetState = () => {
+                setSourceImage(null);
+                if (processedImage) URL.revokeObjectURL(processedImage);
+                setProcessedImage(null);
+            };
+
             return (
-                <div className="flex flex-col h-screen overflow-hidden">
+                <div className="flex flex-col h-[100dvh] overflow-hidden bg-black lg:bg-[#0f1115]">
                     {/* Header */}
                     <header className="h-14 shrink-0 bg-[#0f1115] border-b border-white/5 flex items-center justify-between px-4 lg:px-6 z-10">
                         <div className="flex items-center gap-3">
@@ -431,26 +441,17 @@
                                         className={`w-full max-w-2xl aspect-[4/3] lg:aspect-video rounded-3xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 dropzone ${isDragging ? 'border-indigo-500 bg-indigo-500/10 scale-[1.02]' : 'border-white/10 bg-[#16181d]/50 hover:bg-[#16181d]'}`}
                                     >
                                         <input id="upload" type="file" className="hidden" accept="image/*" onChange={(e) => handleFile(e.target.files[0])} />
-                                        <div className="mb-6 transform transition-transform group-hover:-translate-y-2">
+                                        <div className="mb-4 lg:mb-6 transform transition-transform group-hover:-translate-y-2">
                                             <Icons.Upload />
                                         </div>
-                                        <h2 className="text-xl font-bold text-white mb-2">Drag & Drop Image</h2>
-                                        <p className="text-slate-400 text-sm">or click to browse from your device</p>
-                                        
-                                        <div className="mt-8 flex gap-4 hidden sm:flex">
-                                            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 bg-white/5 px-3 py-1.5 rounded-full">
-                                                <Icons.Sparkles /> Content-Aware
-                                            </div>
-                                            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 bg-white/5 px-3 py-1.5 rounded-full">
-                                                <Icons.Math /> Legacy Alpha
-                                            </div>
-                                        </div>
+                                        <h2 className="text-lg lg:text-xl font-bold text-white mb-2">Select Image</h2>
+                                        <p className="text-slate-400 text-xs lg:text-sm">Tap or drag & drop</p>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="absolute inset-0 flex flex-col">
                                     {/* Image Toolbar */}
-                                    <div className="h-12 bg-[#16181d]/80 backdrop-blur border-b border-white/5 flex items-center justify-between px-3 lg:px-4 shrink-0 absolute top-0 w-full z-10">
+                                    <div className="h-12 bg-[#16181d]/90 backdrop-blur border-b border-white/5 flex items-center justify-between px-3 lg:px-4 shrink-0 absolute top-0 w-full z-10">
                                         <div className="flex items-center gap-2 lg:gap-3 overflow-hidden">
                                             <span className="text-[10px] lg:text-xs font-mono text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2 py-1 rounded shrink-0">
                                                 {sourceImage.width}×{sourceImage.height}
@@ -458,9 +459,10 @@
                                             <span className="text-[11px] lg:text-xs text-slate-400 truncate w-24 sm:w-auto">{fileName}</span>
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">
-                                            <button onClick={() => setSourceImage(null)} className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
+                                            <button onClick={resetState} className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
                                                 Close
                                             </button>
+                                            {/* Native Download Link */}
                                             <a href={processedImage} download={`clean_${fileName}`} className="px-3 lg:px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
                                                 <span className="hidden sm:inline">Export</span>
                                                 <Icons.Download />
@@ -479,7 +481,7 @@
                         </div>
 
                         {/* RIGHT/BOTTOM: Inspector Panel */}
-                        <div className={`w-full lg:w-[360px] lg:shrink-0 bg-[#16181d] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col transition-opacity duration-300 z-20 ${!sourceImage ? 'opacity-40 pointer-events-none' : 'opacity-100'} h-[50vh] lg:h-auto overflow-y-auto`}>
+                        <div className={`w-full lg:w-[360px] lg:shrink-0 bg-[#16181d] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col transition-opacity duration-300 z-20 ${!sourceImage ? 'opacity-40 pointer-events-none' : 'opacity-100'} h-[55vh] lg:h-auto overflow-y-auto safe-pb`}>
                             
                             <div className="p-5 lg:p-6 space-y-8">
                                 
@@ -536,9 +538,9 @@
                                         </div>
                                     )}
 
-                                    <div className="space-y-6 bg-black/20 p-4 rounded-2xl border border-white/5">
+                                    <div className="space-y-6 bg-black/20 p-5 rounded-2xl border border-white/5">
                                         {/* Position */}
-                                        <div className="space-y-4">
+                                        <div className="space-y-6">
                                             <ProSlider label="X Offset (Right)" value={marginX} min={0} max={150} onChange={setMarginX} color="#6366f1" />
                                             <ProSlider label="Y Offset (Bottom)" value={marginY} min={0} max={150} onChange={setMarginY} color="#6366f1" />
                                         </div>
@@ -546,14 +548,35 @@
                                         <div className="h-px bg-white/5 w-full"></div>
 
                                         {/* Dimensions */}
-                                        <div className="space-y-4">
-                                            <ProSlider 
-                                                label="Target Width" 
-                                                value={algorithm === 'legacy' ? (boxWidth >= 72 ? 96: 48) : boxWidth} 
-                                                min={20} max={150} 
-                                                onChange={setBoxWidth} 
-                                                color="#f43f5e" 
-                                            />
+                                        <div className="space-y-6">
+                                            {algorithm === 'legacy' ? (
+                                                <div className="flex flex-col gap-3">
+                                                    <label className="text-sm font-semibold text-slate-300">Legacy Mask Size</label>
+                                                    <div className="flex bg-[#1e2128] border border-white/5 rounded-lg p-1.5 shadow-inner">
+                                                        <button 
+                                                            onClick={() => {setBoxWidth(48); setBoxHeight(48);}}
+                                                            className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all ${boxWidth < 72 ? 'bg-amber-500 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                                                        >
+                                                            Small (48px)
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {setBoxWidth(96); setBoxHeight(96);}}
+                                                            className={`flex-1 py-2.5 rounded-md text-sm font-semibold transition-all ${boxWidth >= 72 ? 'bg-amber-500 text-white shadow-md' : 'text-slate-400 hover:text-white'}`}
+                                                        >
+                                                            Large (96px)
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <ProSlider 
+                                                    label="Target Width" 
+                                                    value={boxWidth} 
+                                                    min={20} max={150} 
+                                                    onChange={setBoxWidth} 
+                                                    color="#f43f5e" 
+                                                />
+                                            )}
+                                            
                                             {algorithm === 'smart' && (
                                                 <ProSlider label="Target Height" value={boxHeight} min={20} max={150} onChange={setBoxHeight} color="#f43f5e" />
                                             )}
