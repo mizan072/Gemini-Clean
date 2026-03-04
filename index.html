@@ -298,6 +298,7 @@
             
             // To prevent async race conditions when creating blobs
             const renderId = useRef(0);
+            const fileInputRef = useRef(null);
 
             useEffect(() => {
                 const loadMasks = async () => {
@@ -412,6 +413,37 @@
                 setProcessedImage(null);
             };
 
+            const handleExport = async () => {
+                if (!processedImage) return;
+                
+                // Try Native Mobile Share API first (Fixes iOS/Android download issues)
+                if (navigator.share) {
+                    try {
+                        const response = await fetch(processedImage);
+                        const blob = await response.blob();
+                        const file = new File([blob], `clean_${fileName}`, { type: blob.type || 'image/png' });
+                        
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: fileName,
+                            });
+                            return; 
+                        }
+                    } catch (err) {
+                        console.log("Share API cancelled or failed.", err);
+                    }
+                }
+                
+                // Fallback for Desktop/PC
+                const link = document.createElement('a');
+                link.href = processedImage;
+                link.download = `clean_${fileName}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
             return (
                 <div className="flex flex-col h-[100dvh] overflow-hidden bg-black lg:bg-[#0f1115]">
                     {/* Header */}
@@ -437,10 +469,10 @@
                                         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                                         onDragLeave={() => setIsDragging(false)}
                                         onDrop={(e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0]); }}
-                                        onClick={() => document.getElementById('upload').click()}
+                                        onClick={() => fileInputRef.current && fileInputRef.current.click()}
                                         className={`w-full max-w-2xl aspect-[4/3] lg:aspect-video rounded-3xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all duration-300 dropzone ${isDragging ? 'border-indigo-500 bg-indigo-500/10 scale-[1.02]' : 'border-white/10 bg-[#16181d]/50 hover:bg-[#16181d]'}`}
                                     >
-                                        <input id="upload" type="file" className="hidden" accept="image/*" onChange={(e) => handleFile(e.target.files[0])} />
+                                        <input ref={fileInputRef} type="file" className="hidden" accept="image/*" onChange={(e) => handleFile(e.target.files[0])} />
                                         <div className="mb-4 lg:mb-6 transform transition-transform group-hover:-translate-y-2">
                                             <Icons.Upload />
                                         </div>
@@ -462,18 +494,21 @@
                                             <button onClick={resetState} className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
                                                 Close
                                             </button>
-                                            {/* Native Download Link */}
-                                            <a href={processedImage} download={`clean_${fileName}`} className="px-3 lg:px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
+                                            {/* Native Download Link / Share API */}
+                                            <button onClick={handleExport} className="px-3 lg:px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
                                                 <span className="hidden sm:inline">Export</span>
                                                 <Icons.Download />
-                                            </a>
+                                            </button>
                                         </div>
                                     </div>
                                     
                                     {/* Checkerboard Preview */}
-                                    <div className="flex-1 checkerboard relative overflow-auto flex items-center justify-center p-4 pt-16">
+                                    <div className="flex-1 checkerboard relative overflow-auto flex items-center justify-center p-4 pt-16 flex-col">
                                         {processedImage && (
-                                            <img src={processedImage} alt="Preview" className="max-w-full max-h-[80vh] object-contain shadow-2xl rounded ring-1 ring-white/10" />
+                                            <>
+                                                <img src={processedImage} alt="Preview" className="max-w-full max-h-[70vh] object-contain shadow-2xl rounded ring-1 ring-white/10 mb-2" />
+                                                <p className="lg:hidden text-[10px] text-slate-400 animate-pulse mt-1 bg-black/50 px-3 py-1 rounded-full border border-white/5">💡 Long-press image to save</p>
+                                            </>
                                         )}
                                     </div>
                                 </div>
@@ -481,7 +516,7 @@
                         </div>
 
                         {/* RIGHT/BOTTOM: Inspector Panel */}
-                        <div className={`w-full lg:w-[360px] lg:shrink-0 bg-[#16181d] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col transition-opacity duration-300 z-20 ${!sourceImage ? 'opacity-40 pointer-events-none' : 'opacity-100'} h-[55vh] lg:h-auto overflow-y-auto safe-pb`}>
+                        <div className={`w-full lg:w-[360px] lg:shrink-0 bg-[#16181d] border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col transition-opacity duration-300 z-20 ${!sourceImage ? 'opacity-40 pointer-events-none' : 'opacity-100'} h-[45vh] lg:h-auto overflow-y-auto safe-pb`}>
                             
                             <div className="p-5 lg:p-6 space-y-8">
                                 
