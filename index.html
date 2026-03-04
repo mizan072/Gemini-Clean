@@ -208,7 +208,9 @@
 
         const applySmartPatch = (data, width, height, startX, startY, wmSizeX, wmSizeY) => {
             const origData = new Uint8ClampedArray(data);
-            const p = 2; 
+            // Increased power from 2 to 3 for sharper, more accurate edge-pixel pulling
+            // This makes the 100% watermark removal look much more seamless
+            const p = 3; 
 
             for (let row = 0; row < wmSizeY; row++) {
                 for (let col = 0; col < wmSizeX; col++) {
@@ -416,29 +418,32 @@
             const handleExport = async () => {
                 if (!processedImage) return;
                 
-                // Try Native Mobile Share API first (Fixes iOS/Android download issues)
-                if (navigator.share) {
+                const safeFileName = fileName ? fileName.replace(/\.[^/.]+$/, "") : "image";
+                const finalName = `clean_${safeFileName}.png`;
+
+                // 1. Try Native Web Share API first (Best for Mobile: directly opens "Save to Gallery")
+                if (navigator.share && /mobile|android|iphone|ipad|ipod/i.test(navigator.userAgent || navigator.vendor || window.opera)) {
                     try {
                         const response = await fetch(processedImage);
                         const blob = await response.blob();
-                        const file = new File([blob], `clean_${fileName}`, { type: blob.type || 'image/png' });
+                        const file = new File([blob], finalName, { type: blob.type || 'image/png' });
                         
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
                             await navigator.share({
                                 files: [file],
-                                title: fileName,
+                                title: 'Cleaned Image',
                             });
-                            return; 
+                            return; // Exit if share is successful
                         }
                     } catch (err) {
-                        console.log("Share API cancelled or failed.", err);
+                        console.log("Share API cancelled or failed. Falling back to direct download.", err);
                     }
                 }
                 
-                // Fallback for Desktop/PC
+                // 2. Direct Download Fallback (Forces download to "Downloads" folder on Android/PC)
                 const link = document.createElement('a');
                 link.href = processedImage;
-                link.download = `clean_${fileName}`;
+                link.download = finalName;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -494,7 +499,7 @@
                                             <button onClick={resetState} className="px-3 py-1.5 text-xs font-medium text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
                                                 Close
                                             </button>
-                                            {/* Native Download Link / Share API */}
+                                            {/* Native Download Link */}
                                             <button onClick={handleExport} className="px-3 lg:px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-lg shadow-indigo-500/20 transition-all flex items-center gap-2">
                                                 <span className="hidden sm:inline">Export</span>
                                                 <Icons.Download />
@@ -506,8 +511,18 @@
                                     <div className="flex-1 checkerboard relative overflow-auto flex items-center justify-center p-4 pt-16 flex-col">
                                         {processedImage && (
                                             <>
-                                                <img src={processedImage} alt="Preview" className="max-w-full max-h-[70vh] object-contain shadow-2xl rounded ring-1 ring-white/10 mb-2" />
-                                                <p className="lg:hidden text-[10px] text-slate-400 animate-pulse mt-1 bg-black/50 px-3 py-1 rounded-full border border-white/5">💡 Long-press image to save</p>
+                                                <img 
+                                                    src={processedImage} 
+                                                    alt="Preview" 
+                                                    className="max-w-full max-h-[65vh] object-contain shadow-2xl rounded ring-1 ring-white/10 mb-2" 
+                                                    style={{ WebkitTouchCallout: 'default' }} 
+                                                />
+                                                <div className="lg:hidden text-center mt-3 w-full max-w-xs animate-in fade-in slide-in-from-bottom-2">
+                                                    <p className="text-[11px] text-indigo-200 font-medium bg-indigo-500/20 px-4 py-2.5 rounded-xl border border-indigo-500/30 shadow-lg leading-relaxed">
+                                                        📲 <strong className="text-white">To save directly to Gallery:</strong><br/>
+                                                        Press & Hold the image above, then tap <span className="text-white font-semibold">"Save Image"</span> or <span className="text-white font-semibold">"Download"</span>.
+                                                    </p>
+                                                </div>
                                             </>
                                         )}
                                     </div>
